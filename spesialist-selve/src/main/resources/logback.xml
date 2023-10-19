@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <excludeMdcKeyName>aktørId</excludeMdcKeyName>
+            <excludeMdcKeyName>aktorId</excludeMdcKeyName>
+            <excludeMdcKeyName>fødselsnummer</excludeMdcKeyName>
+            <excludeMdcKeyName>fnr</excludeMdcKeyName>
+            <customFields>
+                {"hehe": "@project.version"}
+            </customFields>
+        </encoder>
     </appender>
 
     <appender name="auditLogger" class="com.papertrailapp.logback.Syslog4jAppender">

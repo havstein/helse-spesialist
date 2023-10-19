@@ -1,5 +1,9 @@
 package no.nav.helse.mediator
 
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.LayoutBase
+import ch.qos.logback.core.filter.Filter
+import ch.qos.logback.core.spi.FilterReply
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.sql.DataSource
@@ -64,6 +68,22 @@ import no.nav.helse.spesialist.api.vedtaksperiode.ApiGenerasjonRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+class SikkerloggFilter : Filter<ILoggingEvent>() {
+    val sensitiveKeys = setOf("aktørId")
+    override fun decide(event: ILoggingEvent?): FilterReply {
+        val keys = event?.mdcPropertyMap?.keys
+        return if (keys?.any { it in sensitiveKeys } == true) FilterReply.DENY else
+            FilterReply.ACCEPT
+    }
+}
+
+class SikkerloggLayout : LayoutBase<ILoggingEvent>() {
+
+    override fun doLayout(event: ILoggingEvent?): String {
+return "go"
+    }
+}
+
 private class LoggerMedMdc(
     private vararg val mdcEntries: Pair<String, String>,
     private val logger: Logger = LoggerFactory.getLogger("tjenestekall"),
@@ -108,7 +128,7 @@ internal class SaksbehandlerMediator(
         withMDC(
             mapOf(
                 "saksbehandlerOid" to saksbehandler.oid().toString(),
-                "handlingId" to handlingId.toString()
+                "handlingId" to handlingId.toString(),"aktørId" to saksbehandler.ident(), "fødselsnummer" to "1337"
             )
         ) {
             val sikkerlogg = LoggerMedMdc("aktørId" to saksbehandler.ident(), "fødselsnummer" to "1337")
@@ -117,7 +137,7 @@ internal class SaksbehandlerMediator(
             sikkerlogg.info("Utfører handling ${modellhandling.loggnavn()} på vegne av saksbehandler $saksbehandler")
             åpenLogger.info("Utfører handling ${modellhandling.loggnavn()} på vegne av saksbehandler $saksbehandler")
 
-            sikkerlogg.warn("Advarsel! Utfører handling ${modellhandling.loggnavn()} på vegne av saksbehandler $saksbehandler")
+//            sikkerlogg.warn("Advarsel! Utfører handling ${modellhandling.loggnavn()} på vegne av saksbehandler $saksbehandler")
             åpenLogger.warn("Advarsel! Utfører handling ${modellhandling.loggnavn()} på vegne av saksbehandler $saksbehandler")
 
             when (modellhandling) {

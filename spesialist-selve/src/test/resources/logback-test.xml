@@ -12,7 +12,19 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+<!--        <filter class="no.nav.helse.mediator.SikkerloggFilter" />-->
+<!--        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">-->
+<!--            <layout class="no.nav.helse.mediator.SikkerloggLayout" />-->
+<!--        </encoder>-->
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>
+                {"hehe": "@project.version@"}
+            </customFields>
+            <excludeMdcKeyName>aktørId</excludeMdcKeyName>
+            <excludeMdcKeyName>aktorId</excludeMdcKeyName>
+            <excludeMdcKeyName>fødselsnummer</excludeMdcKeyName>
+            <excludeMdcKeyName>fnr</excludeMdcKeyName>
+        </encoder>
     </appender>
 
     <logger name="kafka" level="ERROR" />

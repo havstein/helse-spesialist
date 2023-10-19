@@ -1,6 +1,7 @@
 package no.nav.helse
 
 import com.fasterxml.jackson.databind.JsonNode
+import io.micrometer.core.instrument.Gauge
 import io.prometheus.client.Counter
 import io.prometheus.client.Histogram
 import io.prometheus.client.Summary
@@ -30,6 +31,9 @@ private val varselteller = Counter.build("aktivitet_totals", "Teller antall warn
 private val inaktiveVarslerteller = Counter.build("inaktive_warning_totals", "Teller antall warnings satt inaktive i Spesialist")
     .labelNames("alvorlighetsgrad", "melding")
     .register()
+
+private val d = Gauge.builder("selftests_aggregate_result_status") { 1 }
+    .description("aggregert status for alle selftester. 0=ok, 1=kritisk feil, 2=ikke-kritisk feil")
 
 private val registrerTidsbrukForHendelse = Summary.build("command_tidsbruk", "Måler hvor lang tid en command bruker på å kjøre i ms")
     .labelNames("command")
