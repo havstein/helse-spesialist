@@ -80,10 +80,7 @@ internal class SpesialistApp(
     private val tilgangsgrupper: Tilgangsgrupper,
     private val reservasjonClient: ReservasjonClient,
     private val versjonAvKode: String,
-    private val rapidsConnectionProvider: () -> RapidsConnection,
 ) : RapidsConnection.StatusListener {
-    private val rapidsConnection: RapidsConnection by lazy { rapidsConnectionProvider() }
-
     private val tilgangskontrollørForReservasjon = TilgangskontrollørForReservasjon(gruppekontroll, tilgangsgrupper)
 
     private val dataSourceBuilder = DataSourceBuilder(env)
@@ -260,7 +257,7 @@ internal class SpesialistApp(
         }
     }
 
-    fun start() {
+    fun start(rapidsConnection: RapidsConnection) {
         rapidsConnection.register(this)
         oppgaveMediator =
             OppgaveMediator(

@@ -57,9 +57,7 @@ fun main() {
             tilgangsgrupper = tilgangsgrupper,
             reservasjonClient = reservasjonClient,
             versjonAvKode = "versjon_1",
-        ) {
-            TestRapid()
-        }
+        )
 
     val server =
         embeddedServer(CIO, port = 4321) {
@@ -70,7 +68,7 @@ fun main() {
                 }
             }
         }
-    spesialistApp.start()
+    spesialistApp.start(TestRapid())
     server.start(wait = true)
 }
 
