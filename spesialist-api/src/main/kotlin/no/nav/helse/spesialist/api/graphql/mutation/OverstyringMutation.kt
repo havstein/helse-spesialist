@@ -19,7 +19,6 @@ import no.nav.helse.spesialist.api.saksbehandler.handlinger.OverstyrInntektOgRef
 import no.nav.helse.spesialist.api.saksbehandler.handlinger.OverstyrTidslinjeHandlingFraApi
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
 import java.util.UUID
 
 class OverstyringMutation(private val saksbehandlerhåndterer: Saksbehandlerhåndterer) : Mutation {
@@ -45,7 +44,7 @@ class OverstyringMutation(private val saksbehandlerhåndterer: Saksbehandlerhån
                         dager =
                             overstyring.dager.map { it ->
                                 OverstyrTidslinjeHandlingFraApi.OverstyrDagFraApi(
-                                    dato = LocalDate.parse(it.dato),
+                                    dato = it.dato,
                                     type = it.type,
                                     fraType = it.fraType,
                                     grad = it.grad,
@@ -84,7 +83,7 @@ class OverstyringMutation(private val saksbehandlerhåndterer: Saksbehandlerhån
                     OverstyrInntektOgRefusjonHandlingFraApi(
                         aktørId = overstyring.aktorId,
                         fødselsnummer = overstyring.fodselsnummer,
-                        skjæringstidspunkt = LocalDate.parse(overstyring.skjaringstidspunkt),
+                        skjæringstidspunkt = overstyring.skjaringstidspunkt,
                         arbeidsgivere =
                             overstyring.arbeidsgivere.map { arbeidsgiver ->
                                 OverstyrInntektOgRefusjonHandlingFraApi.OverstyrArbeidsgiverFraApi(
@@ -94,16 +93,16 @@ class OverstyringMutation(private val saksbehandlerhåndterer: Saksbehandlerhån
                                     refusjonsopplysninger =
                                         arbeidsgiver.refusjonsopplysninger?.map { refusjonselement ->
                                             OverstyrInntektOgRefusjonHandlingFraApi.OverstyrArbeidsgiverFraApi.RefusjonselementFraApi(
-                                                fom = LocalDate.parse(refusjonselement.fom),
-                                                tom = refusjonselement.tom?.let { LocalDate.parse(it) },
+                                                fom = refusjonselement.fom,
+                                                tom = refusjonselement.tom,
                                                 beløp = refusjonselement.belop,
                                             )
                                         },
                                     fraRefusjonsopplysninger =
                                         arbeidsgiver.fraRefusjonsopplysninger?.map { refusjonselement ->
                                             OverstyrInntektOgRefusjonHandlingFraApi.OverstyrArbeidsgiverFraApi.RefusjonselementFraApi(
-                                                fom = LocalDate.parse(refusjonselement.fom),
-                                                tom = refusjonselement.tom?.let { LocalDate.parse(it) },
+                                                fom = refusjonselement.fom,
+                                                tom = refusjonselement.tom,
                                                 beløp = refusjonselement.belop,
                                             )
                                         },
@@ -144,7 +143,7 @@ class OverstyringMutation(private val saksbehandlerhåndterer: Saksbehandlerhån
                     OverstyrArbeidsforholdHandlingFraApi(
                         overstyring.fodselsnummer,
                         aktørId = overstyring.aktorId,
-                        skjæringstidspunkt = LocalDate.parse(overstyring.skjaringstidspunkt),
+                        skjæringstidspunkt = overstyring.skjaringstidspunkt,
                         overstyrteArbeidsforhold =
                             overstyring.overstyrteArbeidsforhold.map { arbeidsforhold ->
                                 OverstyrArbeidsforholdHandlingFraApi.ArbeidsforholdFraApi(

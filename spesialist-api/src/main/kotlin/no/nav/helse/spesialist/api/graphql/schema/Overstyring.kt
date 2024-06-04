@@ -1,5 +1,7 @@
 package no.nav.helse.spesialist.api.graphql.schema
 
+import java.time.LocalDate
+
 data class TidslinjeOverstyring(
     val vedtaksperiodeId: String,
     val organisasjonsnummer: String,
@@ -12,7 +14,7 @@ data class TidslinjeOverstyring(
 data class InntektOgRefusjonOverstyring(
     val aktorId: String,
     val fodselsnummer: String,
-    val skjaringstidspunkt: DateString,
+    val skjaringstidspunkt: LocalDate,
     val arbeidsgivere: List<OverstyringArbeidsgiver>,
     val vedtaksperiodeId: String,
 )
@@ -20,7 +22,7 @@ data class InntektOgRefusjonOverstyring(
 data class ArbeidsforholdOverstyringHandling(
     val fodselsnummer: String,
     val aktorId: String,
-    val skjaringstidspunkt: DateString,
+    val skjaringstidspunkt: LocalDate,
     val overstyrteArbeidsforhold: List<OverstyringArbeidsforhold>,
     val vedtaksperiodeId: String,
 )
@@ -44,14 +46,14 @@ data class OverstyringArbeidsgiver(
     val lovhjemmel: Lovhjemmel?,
 ) {
     data class OverstyringRefusjonselement(
-        val fom: DateString,
-        val tom: DateString? = null,
+        val fom: LocalDate,
+        val tom: LocalDate? = null,
         val belop: Double,
     )
 }
 
 data class OverstyringDag(
-    val dato: DateString,
+    val dato: LocalDate,
     val type: String,
     val fraType: String,
     val grad: Int?,
