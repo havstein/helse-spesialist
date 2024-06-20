@@ -81,6 +81,7 @@ internal class GodkjenningsbehovRiver(
         mediator.godkjenningsbehov(
             Godkjenningsbehov(packet),
             avviksvurderingId =
+                // I skrivende stund kan revurderinger og INFOTRYGDFORLENGELSE mangle avviksvurderingId.
                 packet["avviksvurderingId"].takeUnless { it.isMissingOrNull() }
                     ?.let { UUID.fromString(it.asText()) },
             vilkårsgrunnlagId = UUID.fromString(packet["Godkjenning.vilkårsgrunnlagId"].asText()),
