@@ -1255,11 +1255,12 @@ internal abstract class AbstractE2ETest : AbstractDatabaseTest() {
         assertEquals(godkjent, løsning.path("godkjent").booleanValue())
         assertEquals(automatiskBehandlet, løsning.path("automatiskBehandling").booleanValue())
         assertNotNull(løsning.path("godkjenttidspunkt").asLocalDateTime())
-        if (årsakerTilAvvist.isNotEmpty()) {
-            val begrunnelser = løsning["begrunnelser"].map { it.asText() }
-            assertEquals(begrunnelser, begrunnelser.distinct())
-            assertEquals(årsakerTilAvvist.toSet(), begrunnelser.toSet())
-        }
+
+        if (årsakerTilAvvist.isEmpty()) return
+
+        val begrunnelser = løsning["begrunnelser"].map { it.asText() }
+        assertEquals(begrunnelser, begrunnelser.distinct())
+        assertEquals(årsakerTilAvvist.toSet(), begrunnelser.toSet())
     }
 
     protected fun assertGodkjenningsbehovIkkeBesvart() = testRapid.inspektør.løsning("Godkjenningsbehov") == null
