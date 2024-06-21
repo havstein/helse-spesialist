@@ -1,6 +1,7 @@
 package no.nav.helse.modell.vedtaksperiode
 
 import com.fasterxml.jackson.databind.JsonNode
+import no.nav.helse.db.AvviksvurderingDao
 import no.nav.helse.mediator.GodkjenningMediator
 import no.nav.helse.mediator.asUUID
 import no.nav.helse.mediator.meldinger.VedtaksperiodemeldingOld
@@ -199,6 +200,7 @@ internal class GodkjenningsbehovCommand(
     generasjonRepository: GenerasjonRepository,
     godkjenningMediator: GodkjenningMediator,
     totrinnsvurderingMediator: TotrinnsvurderingMediator,
+    avviksvurderingDao: AvviksvurderingDao,
     json: String,
 ) : MacroCommand() {
     override val commands: List<Command> =
@@ -228,12 +230,14 @@ internal class GodkjenningsbehovCommand(
                 organisasjonsnummer = organisasjonsnummer,
                 orgnummereMedRelevanteArbeidsforhold = orgnummereMedRelevanteArbeidsforhold,
                 førstegangsbehandling = førstegangsbehandling,
+                skjæringstidspunkt = skjæringstidspunkt,
                 førsteKjenteDagFinner = førsteKjenteDagFinner,
                 personDao = personDao,
                 arbeidsgiverDao = arbeidsgiverDao,
                 arbeidsforholdDao = arbeidsforholdDao,
                 snapshotDao = snapshotDao,
                 snapshotClient = snapshotClient,
+                avviksvurderingDao = avviksvurderingDao,
             ),
             KontrollerEgenAnsattstatus(
                 fødselsnummer = fødselsnummer,
@@ -341,12 +345,14 @@ private class ForberedVisningCommand(
     organisasjonsnummer: String,
     orgnummereMedRelevanteArbeidsforhold: List<String>,
     førstegangsbehandling: Boolean,
+    skjæringstidspunkt: LocalDate,
     førsteKjenteDagFinner: () -> LocalDate,
     personDao: PersonDao,
     arbeidsgiverDao: ArbeidsgiverDao,
     arbeidsforholdDao: ArbeidsforholdDao,
     snapshotDao: SnapshotDao,
     snapshotClient: ISnapshotClient,
+    avviksvurderingDao: AvviksvurderingDao,
 ) : MacroCommand() {
     override val commands: List<Command> =
         listOf(
@@ -356,8 +362,11 @@ private class ForberedVisningCommand(
                 personDao = personDao,
             ),
             KlargjørArbeidsgiverCommand(
+                fødselsnummer,
                 orgnummere = orgnummereMedRelevanteArbeidsforhold + organisasjonsnummer,
+                skjæringstidspunkt,
                 arbeidsgiverDao = arbeidsgiverDao,
+                avviksvurderingDao,
             ),
             KlargjørArbeidsforholdCommand(
                 fødselsnummer = fødselsnummer,

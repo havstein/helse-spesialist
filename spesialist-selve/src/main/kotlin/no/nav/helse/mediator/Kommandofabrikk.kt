@@ -438,6 +438,7 @@ internal class Kommandofabrikk(
             generasjonRepository = generasjonRepository,
             godkjenningMediator = godkjenningMediator,
             totrinnsvurderingMediator = totrinnsvurderingMediator,
+            avviksvurderingDao = avviksvurderingDao,
             json = hendelse.toJson(),
         )
     }

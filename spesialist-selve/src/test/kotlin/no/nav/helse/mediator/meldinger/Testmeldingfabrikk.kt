@@ -1109,9 +1109,9 @@ internal object Testmeldingfabrikk {
                     "sammenligningsgrunnlag" to mapOf(
                         "id" to "887b2e4c-5222-45f1-9831-1846a028193b",
                         "totalbeløp" to avviksvurderingTestdata.sammenligningsgrunnlag,
-                        "innrapporterteInntekter" to listOf(
+                        "innrapporterteInntekter" to (organisasjonsnummer + avviksvurderingTestdata.orgnumreISammenligningsgrunnlaget).map { orgnr ->
                             mapOf(
-                                "arbeidsgiverreferanse" to organisasjonsnummer,
+                                "arbeidsgiverreferanse" to orgnr,
                                 "inntekter" to listOf(
                                     mapOf(
                                         "årMåned" to YearMonth.from(1.januar),
@@ -1119,7 +1119,7 @@ internal object Testmeldingfabrikk {
                                     ),
                                 )
                             )
-                        )
+                        }
                     ),
                     "avviksprosent" to avviksvurderingTestdata.avviksprosent,
                 )

@@ -48,7 +48,7 @@ internal class OppdaterArbeidsgiverCommandTest {
         every { dao.findBransjerSistOppdatert(ORGNR) } returns LocalDate.now()
 
         løsning(ORGNR).also(context::add)
-        val command = OppdaterArbeidsgiverCommand(listOf(ORGNR), dao)
+        val command = lagCommand(listOf(ORGNR))
 
         assertTrue(command.execute(context))
         verify(exactly = 0) { dao.upsertNavn(any(), any()) }
@@ -63,7 +63,7 @@ internal class OppdaterArbeidsgiverCommandTest {
 
         løsning(ghostOrgnr).also(context::add)
 
-        val command = OppdaterArbeidsgiverCommand(listOf(ORGNR, ghostOrgnr), dao)
+        val command = lagCommand(listOf(ORGNR, ghostOrgnr))
         assertFalse(command.execute(context))
         assertTrue(observer.behov.isNotEmpty())
         verify(exactly = 0) { dao.upsertNavn(any(), any()) }
@@ -77,7 +77,7 @@ internal class OppdaterArbeidsgiverCommandTest {
         every { dao.findNavnSistOppdatert(orgnrMedUtdatertNavn) } returns LocalDate.now().minusYears(1)
         every { dao.findBransjerSistOppdatert(orgnrMedUtdatertBransje) } returns LocalDate.now().minusYears(1)
 
-        val command = OppdaterArbeidsgiverCommand(listOf(ORGNR, orgnrMedUtdatertNavn, orgnrMedUtdatertBransje), dao)
+        val command = lagCommand(listOf(ORGNR, orgnrMedUtdatertNavn, orgnrMedUtdatertBransje))
 
         assertFalse(command.execute(context))
         assertTrue(observer.behov.isNotEmpty())
@@ -100,7 +100,7 @@ internal class OppdaterArbeidsgiverCommandTest {
 
         løsning(orgnrMedOppdaterteData).also(context::add)
 
-        val command = OppdaterArbeidsgiverCommand(listOf(ORGNR, orgnrMedUtdatertNavn, orgnrMedOppdaterteData), dao)
+        val command = lagCommand(listOf(ORGNR, orgnrMedUtdatertNavn, orgnrMedOppdaterteData))
 
         assertFalse(command.execute(context))
         assertTrue(observer.behov.isNotEmpty())
@@ -120,7 +120,7 @@ internal class OppdaterArbeidsgiverCommandTest {
 
         every { dao.findNavnSistOppdatert(fnr) } returns null
 
-        val command = OppdaterArbeidsgiverCommand(listOf(fnr), dao)
+        val command = lagCommand(listOf(fnr))
         assertFalse(command.execute(context))
         assertTrue(observer.behov.isNotEmpty())
 
@@ -139,6 +139,9 @@ internal class OppdaterArbeidsgiverCommandTest {
         verify(exactly = 1) { dao.upsertNavn(fnr, "LITEN TRANFLASKE") }
         verify(exactly = 1) { dao.upsertBransjer(fnr, listOf("Privatperson")) }
     }
+
+    private fun lagCommand(orgnumre: List<String>) =
+        OppdaterArbeidsgiverCommand("fnr", orgnumre, LocalDate.now(), dao, mockk(relaxed = true))
 
     private fun løsning(vararg orgnumre: String) = Arbeidsgiverinformasjonløsning(orgnumre.map { arbeidsgiverinfo(it) })
 

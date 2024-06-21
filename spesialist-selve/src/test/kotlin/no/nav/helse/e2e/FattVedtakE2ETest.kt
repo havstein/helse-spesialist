@@ -1,11 +1,11 @@
 package no.nav.helse.e2e
 
 import AbstractE2ETest
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.convertValue
-import java.time.LocalDate
-import java.util.UUID
 import no.nav.helse.AvviksvurderingTestdata
 import no.nav.helse.GodkjenningsbehovTestdata
+import no.nav.helse.TestRapidHelpers.behov
 import no.nav.helse.TestRapidHelpers.hendelser
 import no.nav.helse.TestRapidHelpers.meldinger
 import no.nav.helse.januar
@@ -13,10 +13,14 @@ import no.nav.helse.mediator.asUUID
 import no.nav.helse.objectMapper
 import no.nav.helse.rapids_rivers.asLocalDate
 import no.nav.helse.rapids_rivers.asLocalDateTime
+import no.nav.helse.spesialist.test.lagOrganisasjonsnummer
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import java.util.UUID
 
 internal class FattVedtakE2ETest: AbstractE2ETest() {
 
@@ -119,6 +123,27 @@ internal class FattVedtakE2ETest: AbstractE2ETest() {
         assertEquals("EtterHovedregel", sykepengegrunnlagsfakta["fastsatt"].asText())
         assertEquals(avviksprosent, sykepengegrunnlagsfakta["avviksprosent"].asDouble())
         assertEquals(sammenligningsgrunnlag, sykepengegrunnlagsfakta["innrapportertÅrsinntekt"].asDouble())
+    }
+
+    @Test
+    fun `Innhenter navn for andre arbeidsgivere som inngår i sammenligningsgrunnlaget`() {
+        val avviksvurderingId = UUID.randomUUID()
+        val orgnummerISammenligningsgrunnlaget = lagOrganisasjonsnummer()
+
+        vedtaksløsningenMottarNySøknad()
+        spleisOppretterNyBehandling()
+        spesialistBehandlerGodkjenningsbehovFremTilOppgave(
+            godkjenningsbehovTestdata = godkjenningsbehovTestdata.copy(avviksvurderingId = avviksvurderingId),
+            avviksvurderingTestdata = AvviksvurderingTestdata(
+                avviksvurderingId = avviksvurderingId,
+                orgnumreISammenligningsgrunnlaget = setOf(orgnummerISammenligningsgrunnlaget)
+            )
+        )
+
+        val behov = inspektør.behov("Arbeidsgiverinformasjon")
+            .first { it["Arbeidsgiverinformasjon"]["organisasjonsnummer"].any { it.asText() == orgnummerISammenligningsgrunnlaget } }
+        assertNotNull(behov)
+        assertTrue(orgnummerISammenligningsgrunnlaget in behov["Arbeidsgiverinformasjon"]["organisasjonsnummer"].map(JsonNode::asText))
     }
 
     @Test

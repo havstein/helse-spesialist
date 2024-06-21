@@ -4,13 +4,13 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import java.time.LocalDate
-import java.util.UUID
 import no.nav.helse.modell.arbeidsgiver.ArbeidsgiverDao
 import no.nav.helse.modell.arbeidsgiver.Arbeidsgiverinformasjonløsning
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import java.util.UUID
 
 internal class KlargjørArbeidsgiverCommandTest {
     private companion object {
@@ -22,7 +22,7 @@ internal class KlargjørArbeidsgiverCommandTest {
     private val dao = mockk<ArbeidsgiverDao>(relaxed = true)
 
     private lateinit var context: CommandContext
-    private val command = KlargjørArbeidsgiverCommand(listOf(ORGNR), dao)
+    private val command = KlargjørArbeidsgiverCommand("fnr", listOf(ORGNR), LocalDate.now(), dao, mockk(relaxed = true))
 
     @BeforeEach
     fun setup() {

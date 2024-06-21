@@ -1,5 +1,6 @@
 package no.nav.helse.modell.kommando
 
+import no.nav.helse.db.AvviksvurderingDao
 import no.nav.helse.modell.arbeidsgiver.ArbeidsgiverDao
 import no.nav.helse.modell.arbeidsgiver.Arbeidsgiverinformasjonløsning
 import no.nav.helse.modell.person.HentPersoninfoløsninger
@@ -7,8 +8,11 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 internal class OppdaterArbeidsgiverCommand(
+    val fødselsnummer: String,
     orgnummere: List<String>,
+    val skjæringstidspunkt: LocalDate,
     private val arbeidsgiverDao: ArbeidsgiverDao,
+    val avviksvurderingDao: AvviksvurderingDao,
 ) : Command {
     private companion object {
         private val log = LoggerFactory.getLogger(OppdaterArbeidsgiverCommand::class.java)
@@ -16,6 +20,20 @@ internal class OppdaterArbeidsgiverCommand(
 
     private val orgnummere = orgnummere.filter { it.length == 9 }
     private val personidenter = orgnummere.filter { it.length > 9 }
+
+    private val andreArbeidsgivereISammenligningsgrunnlaget: Set<String> by lazy {
+        val fødselsnummer = fødselsnummer
+        val avviksvurderinger =
+            avviksvurderingDao.finnAvviksvurderinger(fødselsnummer).find { it.skjæringstidspunkt == skjæringstidspunkt }
+                ?: return@lazy emptySet()
+        val alleOrgnumre =
+            avviksvurderinger
+                .sammenligningsgrunnlag
+                .innrapporterteInntekter
+                .map { it.arbeidsgiverreferanse }
+                .toSet()
+        alleOrgnumre - orgnummere.toSet()
+    }
 
     override fun execute(context: CommandContext) =
         when {
@@ -28,7 +46,7 @@ internal class OppdaterArbeidsgiverCommand(
     }
 
     private fun ikkeOppdaterteNavn() =
-        orgnummere.filterNot { orgnummer ->
+        (orgnummere + andreArbeidsgivereISammenligningsgrunnlaget).filterNot { orgnummer ->
             arbeidsgiverDao.findNavnSistOppdatert(orgnummer)?.innenforSisteFjortenDager() ?: false
         }
 
