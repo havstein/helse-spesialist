@@ -29,6 +29,28 @@ class StansAutomatiskBehandlingDao(dataSource: DataSource) : HelseDao(dataSource
         ),
     ).update()
 
+    // samme funksjon som den over, men denne tar inn Set<String>
+    fun sqlInjection(
+        fødselsnummer: String,
+        status: String,
+        årsaker: Set<String>,
+        opprettet: LocalDateTime,
+        originalMelding: String?,
+        kilde: String,
+    ) = asSQL(
+        """
+        insert into stans_automatisering (fødselsnummer, status, årsaker, opprettet, kilde, original_melding) 
+        values (:fnr, :status, '{${årsaker.somDbArrayInnhold()}}', :opprettet, :kilde, cast(:originalMelding as json))
+        """.trimIndent(),
+        mapOf(
+            "fnr" to fødselsnummer,
+            "status" to status,
+            "opprettet" to opprettet,
+            "kilde" to kilde,
+            "originalMelding" to originalMelding,
+        ),
+    ).update()
+
     fun lagreFraSpeil(fødselsnummer: String) =
         asSQL(
             """

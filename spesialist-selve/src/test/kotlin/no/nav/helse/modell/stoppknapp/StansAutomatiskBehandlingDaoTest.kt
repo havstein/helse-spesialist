@@ -19,6 +19,31 @@ internal class StansAutomatiskBehandlingDaoTest : DatabaseIntegrationTest() {
         assertEquals("ISYFO", data<String>(FNR, "kilde"))
     }
 
+    // Denne viser hvordan man kunne ha angrepet fra Speil - *hvis* årsaker var Set<String> hele veien fra API-et
+    @Test
+    fun `kan injecte sql`() {
+        stansAutomatiskBehandlingDao.sqlInjection(
+            fødselsnummer = FNR,
+            status = "STOPP_AUTOMATIKK",
+            årsaker = setOf(
+                // dette kunne en angriper ha sendt inn fra frontend (eller kommandolinja)
+                """
+                    }', now(), 'HACKER', '{}');
+                    drop table hendelse cascade;
+                    insert into stans_automatisering (fødselsnummer, status, årsaker, opprettet, kilde, original_melding) values('12312312312', 'angrep', '{
+                """
+            ),
+            opprettet = now(),
+            originalMelding = "{}",
+            kilde = "ISYFO",
+        )
+
+        assertEquals(FNR, data<String>(FNR, "fødselsnummer"))
+        assertEquals("STOPP_AUTOMATIKK", data<String>(FNR, "status"))
+        assertEquals(setOf("MEDISINSK_VILKAR", "AKTIVITETSKRAV"), data<Set<String>>(FNR, "årsaker"))
+        assertEquals("ISYFO", data<String>(FNR, "kilde"))
+    }
+
     @Test
     fun `kan lagre fra speil`() {
         stansAutomatiskBehandlingDao.lagreFraSpeil(FNR)
