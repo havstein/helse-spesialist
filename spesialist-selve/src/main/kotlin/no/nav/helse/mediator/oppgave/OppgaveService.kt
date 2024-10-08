@@ -6,11 +6,16 @@ import no.nav.helse.db.EgenskapForDatabase
 import no.nav.helse.db.MeldingRepository
 import no.nav.helse.db.OppgaveRepository
 import no.nav.helse.db.OppgavesorteringForDatabase
+import no.nav.helse.db.OpptegnelseDao
 import no.nav.helse.db.OpptegnelseRepository
+import no.nav.helse.db.ReservasjonDao
 import no.nav.helse.db.ReservasjonRepository
+import no.nav.helse.db.SaksbehandlerDao
 import no.nav.helse.db.SaksbehandlerRepository
 import no.nav.helse.db.SorteringsnøkkelForDatabase
+import no.nav.helse.db.TildelingDao
 import no.nav.helse.db.TildelingRepository
+import no.nav.helse.db.TotrinnsvurderingDao
 import no.nav.helse.db.TotrinnsvurderingFraDatabase
 import no.nav.helse.db.TotrinnsvurderingRepository
 import no.nav.helse.mediator.SaksbehandlerMediator.Companion.tilApiversjon
@@ -20,6 +25,7 @@ import no.nav.helse.mediator.oppgave.OppgaveMapper.tilBehandledeOppgaver
 import no.nav.helse.mediator.oppgave.OppgaveMapper.tilDatabaseversjon
 import no.nav.helse.mediator.oppgave.OppgaveMapper.tilEgenskaperForVisning
 import no.nav.helse.mediator.oppgave.OppgaveMapper.tilOppgaverTilBehandling
+import no.nav.helse.modell.MeldingDao
 import no.nav.helse.modell.Modellfeil
 import no.nav.helse.modell.oppgave.Egenskap
 import no.nav.helse.modell.oppgave.Oppgave
@@ -45,6 +51,7 @@ import no.nav.helse.spesialist.api.saksbehandler.SaksbehandlerFraApi
 import org.slf4j.LoggerFactory
 import java.sql.SQLException
 import java.util.UUID
+import javax.sql.DataSource
 
 interface Oppgavefinner {
     fun oppgave(
@@ -65,6 +72,24 @@ internal class OppgaveService(
     private val tilgangskontroll: Tilgangskontroll,
     private val tilgangsgrupper: Tilgangsgrupper,
 ) : Oppgavehåndterer, Oppgavefinner {
+    constructor(
+        dataSource: DataSource,
+        rapidsConnection: RapidsConnection,
+        tilgangskontroll: Tilgangskontroll,
+        tilgangsgrupper: Tilgangsgrupper,
+    ) : this(
+        MeldingDao(dataSource),
+        OppgaveDao(dataSource),
+        TildelingDao(dataSource),
+        ReservasjonDao(dataSource),
+        OpptegnelseDao(dataSource),
+        TotrinnsvurderingDao(dataSource),
+        SaksbehandlerDao(dataSource),
+        rapidsConnection,
+        tilgangskontroll,
+        tilgangsgrupper,
+    )
+
     private val logg = LoggerFactory.getLogger(this::class.java)
     private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
 

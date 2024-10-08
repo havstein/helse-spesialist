@@ -9,10 +9,8 @@ import no.nav.helse.db.AvviksvurderingDao
 import no.nav.helse.db.BehandlingsstatistikkDao
 import no.nav.helse.db.OpptegnelseDao
 import no.nav.helse.db.PoisonPillDao
-import no.nav.helse.db.ReservasjonDao
 import no.nav.helse.db.SaksbehandlerDao
 import no.nav.helse.db.StansAutomatiskBehandlingDao
-import no.nav.helse.db.TildelingDao
 import no.nav.helse.db.TotrinnsvurderingDao
 import no.nav.helse.mediator.BehandlingsstatistikkService
 import no.nav.helse.mediator.GodkjenningMediator
@@ -103,10 +101,8 @@ internal class SpesialistApp(
     private val risikovurderingApiDao = RisikovurderingApiDao(dataSource)
     private val saksbehandlerDao = SaksbehandlerDao(dataSource)
     private val tildelingApiDao = TildelingApiDao(dataSource)
-    private val tildelingDao = TildelingDao(dataSource)
     private val åpneGosysOppgaverDao = ÅpneGosysOppgaverDao(dataSource)
     private val overstyringApiDao = OverstyringApiDao(dataSource)
-    private val reservasjonDao = ReservasjonDao(dataSource)
     private val arbeidsgiverApiDao = ArbeidsgiverApiDao(dataSource)
     private val egenAnsattApiDao = EgenAnsattApiDao(dataSource)
     private val opptegnelseDao = OpptegnelseDao(dataSource)
@@ -259,13 +255,7 @@ internal class SpesialistApp(
         rapidsConnection.register(this)
         oppgaveService =
             OppgaveService(
-                meldingRepository = meldingDao,
-                oppgaveRepository = oppgaveDao,
-                tildelingRepository = tildelingDao,
-                reservasjonRepository = reservasjonDao,
-                opptegnelseRepository = opptegnelseDao,
-                totrinnsvurderingRepository = totrinnsvurderingDao,
-                saksbehandlerRepository = saksbehandlerDao,
+                dataSource = dataSource,
                 rapidsConnection = rapidsConnection,
                 tilgangskontroll = tilgangskontrollørForReservasjon,
                 tilgangsgrupper = tilgangsgrupper,

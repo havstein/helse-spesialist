@@ -1,10 +1,8 @@
 import no.nav.helse.SpeilTilgangsgrupper
 import no.nav.helse.TestRapidHelpers.oppgaveId
 import no.nav.helse.TestRapidHelpers.siste
-import no.nav.helse.db.OpptegnelseDao
 import no.nav.helse.db.ReservasjonDao
 import no.nav.helse.db.SaksbehandlerDao
-import no.nav.helse.db.TildelingDao
 import no.nav.helse.db.TotrinnsvurderingDao
 import no.nav.helse.mediator.GodkjenningService
 import no.nav.helse.mediator.oppgave.OppgaveDao
@@ -35,14 +33,8 @@ internal abstract class AbstractIntegrationTest : AbstractE2ETest() {
 
     private val oppgaveService =
         OppgaveService(
-            oppgaveRepository = OppgaveDao(dataSource),
-            tildelingRepository = TildelingDao(dataSource),
-            reservasjonRepository = reservasjonDao,
-            opptegnelseRepository = OpptegnelseDao(dataSource),
-            totrinnsvurderingRepository = totrinnsvurderingDao,
-            saksbehandlerRepository = SaksbehandlerDao(dataSource),
+            dataSource = dataSource,
             rapidsConnection = testRapid,
-            meldingRepository = meldingDao,
             tilgangskontroll = TilgangskontrollForTestHarIkkeTilgang,
             tilgangsgrupper = SpeilTilgangsgrupper(testEnv),
         )

@@ -1,11 +1,7 @@
 import no.nav.helse.SpeilTilgangsgrupper
 import no.nav.helse.db.AvviksvurderingDao
 import no.nav.helse.db.OpptegnelseDao
-import no.nav.helse.db.ReservasjonDao
-import no.nav.helse.db.SaksbehandlerDao
 import no.nav.helse.db.StansAutomatiskBehandlingDao
-import no.nav.helse.db.TildelingDao
-import no.nav.helse.db.TotrinnsvurderingDao
 import no.nav.helse.mediator.GodkjenningMediator
 import no.nav.helse.mediator.Kommandofabrikk
 import no.nav.helse.mediator.MeldingMediator
@@ -50,9 +46,6 @@ internal class TestMediator(
     private val overstyringDao = OverstyringDao(dataSource)
     private val meldingDao = MeldingDao(dataSource)
     private val generasjonDao = GenerasjonDao(dataSource)
-    private val totrinnsvurderingDao = TotrinnsvurderingDao(dataSource)
-    private val saksbehandlerDao = SaksbehandlerDao(dataSource)
-    private val tildelingDao = TildelingDao(dataSource)
     private val avviksvurderingDao = AvviksvurderingDao(dataSource)
     private val egenAnsattDao = EgenAnsattDao(dataSource)
 
@@ -69,13 +62,7 @@ internal class TestMediator(
     private val tilgangsgrupper = SpeilTilgangsgrupper(testEnv)
     private val oppgaveService =
         OppgaveService(
-            meldingRepository = meldingDao,
-            oppgaveRepository = OppgaveDao(dataSource),
-            tildelingRepository = tildelingDao,
-            reservasjonRepository = ReservasjonDao(dataSource),
-            opptegnelseRepository = opptegnelseDao,
-            totrinnsvurderingRepository = totrinnsvurderingDao,
-            saksbehandlerRepository = saksbehandlerDao,
+            dataSource = dataSource,
             rapidsConnection = testRapid,
             tilgangskontroll = TilgangskontrollForTestHarIkkeTilgang,
             tilgangsgrupper = tilgangsgrupper,

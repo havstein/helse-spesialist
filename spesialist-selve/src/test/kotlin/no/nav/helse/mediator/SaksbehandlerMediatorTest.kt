@@ -6,7 +6,6 @@ import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.helse.SpeilTilgangsgrupper
 import no.nav.helse.TestRapidHelpers.hendelser
-import no.nav.helse.db.SaksbehandlerDao
 import no.nav.helse.februar
 import no.nav.helse.januar
 import no.nav.helse.mediator.oppgave.OppgaveService
@@ -59,10 +58,6 @@ import kotlin.random.Random
 internal class SaksbehandlerMediatorTest : DatabaseIntegrationTest() {
     private val tilgangsgrupper = SpeilTilgangsgrupper(testEnv)
     private val testRapid = TestRapid()
-    private val tildelingDbDao =
-        no.nav.helse.db
-            .TildelingDao(dataSource)
-    private val saksbehandlerRepository = SaksbehandlerDao(dataSource)
     private val stansAutomatiskBehandlingMediator =
         StansAutomatiskBehandlingMediator(
             stansAutomatiskBehandlingDao,
@@ -73,13 +68,7 @@ internal class SaksbehandlerMediatorTest : DatabaseIntegrationTest() {
         ) { Subsumsjonsmelder("versjonAvKode", testRapid) }
     private val oppgaveService =
         OppgaveService(
-            meldingDao,
-            oppgaveDao,
-            tildelingDbDao,
-            reservasjonDao,
-            opptegnelseDao,
-            totrinnsvurderingDao,
-            saksbehandlerRepository,
+            dataSource,
             testRapid,
             TilgangskontrollForTestHarIkkeTilgang,
             tilgangsgrupper,
