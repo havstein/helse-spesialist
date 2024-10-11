@@ -4,8 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.serialization.jackson.JacksonConverter
-import io.ktor.server.auth.authenticate
-import io.ktor.server.routing.Route
+import io.ktor.server.application.Application
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.TestApplicationBuilder
 import io.ktor.server.testing.testApplication
@@ -18,7 +17,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation as ContentNe
 
 internal class ApiTesting(
     private val jwtStub: JwtStub = JwtStub(),
-    private val build: Route.() -> Unit,
+    private val build: Application.() -> Unit,
 ) {
     private val clientId = "client_id"
     private val issuer = "https://jwt-provider-domain"
@@ -34,9 +33,7 @@ internal class ApiTesting(
             )
         application {
             azureAdAppAuthentication(azureConfig, Environment())
-        }
-        routing {
-            authenticate("oidc", build = build)
+            build()
         }
     }
 

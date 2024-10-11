@@ -1,17 +1,13 @@
 package no.nav.helse.bootstrap
 
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.jackson.JacksonConverter
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.install
 import io.ktor.server.plugins.callid.CallId
 import io.ktor.server.plugins.callid.callIdMdc
 import io.ktor.server.plugins.callloging.CallLogging
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.plugins.doublereceive.DoubleReceive
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
@@ -19,7 +15,6 @@ import io.ktor.server.request.uri
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.websocket.WebSockets
-import no.nav.helse.objectMapper
 import no.nav.helse.requestResponseTracing
 import no.nav.helse.spesialist.api.feilhåndtering.Modellfeil
 import org.slf4j.LoggerFactory
@@ -45,8 +40,7 @@ internal fun Application.installPlugins() {
         callIdMdc("callId")
         filter { call -> call.request.path().startsWith("/api/") || call.request.path().startsWith("/ws/") }
     }
-    install(DoubleReceive)
-    install(ContentNegotiation) { register(ContentType.Application.Json, JacksonConverter(objectMapper)) }
+//    install(DoubleReceive)
     requestResponseTracing(sikkerlogg)
 }
 

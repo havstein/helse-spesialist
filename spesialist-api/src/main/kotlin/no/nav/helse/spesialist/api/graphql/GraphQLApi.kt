@@ -1,19 +1,11 @@
 package no.nav.helse.spesialist.api.graphql
 
-import com.expediagroup.graphql.server.execution.GraphQLServer
-import graphql.GraphQL
-import io.ktor.http.ContentType
+import com.expediagroup.graphql.server.ktor.GraphQL
+import com.expediagroup.graphql.server.ktor.graphQLPostRoute
+import com.expediagroup.graphql.server.ktor.graphiQLRoute
 import io.ktor.server.application.Application
-import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.auth.authenticate
-import io.ktor.server.request.ApplicationRequest
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import no.nav.helse.mediator.IBehandlingsstatistikkService
 import no.nav.helse.spesialist.api.Avviksvurderinghenter
@@ -27,7 +19,6 @@ import no.nav.helse.spesialist.api.Totrinnsvurderinghåndterer
 import no.nav.helse.spesialist.api.arbeidsgiver.ArbeidsgiverApiDao
 import no.nav.helse.spesialist.api.egenAnsatt.EgenAnsattApiDao
 import no.nav.helse.spesialist.api.notat.NotatApiDao
-import no.nav.helse.spesialist.api.objectMapper
 import no.nav.helse.spesialist.api.oppgave.OppgaveApiDao
 import no.nav.helse.spesialist.api.oppgave.Oppgavehåndterer
 import no.nav.helse.spesialist.api.overstyring.OverstyringApiDao
@@ -41,9 +32,6 @@ import no.nav.helse.spesialist.api.tildeling.TildelingApiDao
 import no.nav.helse.spesialist.api.totrinnsvurdering.TotrinnsvurderingApiDao
 import no.nav.helse.spesialist.api.varsel.ApiVarselRepository
 import no.nav.helse.spesialist.api.vergemål.VergemålApiDao
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import java.time.Duration
 import java.util.UUID
 
 fun Application.graphQLApi(
@@ -80,7 +68,7 @@ fun Application.graphQLApi(
     val godkjenninghåndterer: Godkjenninghåndterer by lazy { godkjenninghåndtererProvider() }
     val personhåndterer: Personhåndterer by lazy { personhåndtererProvider() }
     val dokumenthåndterer: Dokumenthåndterer by lazy { dokumenthåndtererProvider() }
-    val schema =
+    val schemaBuilder =
         SchemaBuilder(
             personApiDao = personApiDao,
             egenAnsattApiDao = egenAnsattApiDao,
@@ -106,65 +94,43 @@ fun Application.graphQLApi(
             personhåndterer = personhåndterer,
             dokumenthåndterer = dokumenthåndterer,
             stansAutomatiskBehandlinghåndterer = stansAutomatiskBehandlinghåndterer,
-        ).build()
+        )
 
-    val server =
-        GraphQLServer(
-            requestParser = RequestParser(),
-            contextFactory =
+    wiring(kode7Saksbehandlergruppe, skjermedePersonerGruppeId, beslutterGruppeId, schemaBuilder)
+}
+
+internal fun Application.wiring(
+    kode7Saksbehandlergruppe: UUID,
+    skjermedePersonerGruppeId: UUID,
+    beslutterGruppeId: UUID,
+    schemaBuilder: SchemaBuilder,
+) {
+    install(GraphQL) {
+        server {
+            this.contextFactory =
                 ContextFactory(
                     kode7Saksbehandlergruppe = kode7Saksbehandlergruppe,
                     skjermedePersonerSaksbehandlergruppe = skjermedePersonerGruppeId,
                     beslutterSaksbehandlergruppe = beslutterGruppeId,
-                ),
-            requestHandler =
-                LoggingGraphQLRequestHandler(
-                    GraphQL.newGraphQL(schema).build(),
-                ),
-        )
+                )
+        }
+        schema {
+            packages =
+                listOf(
+                    "no.nav.helse.spesialist.api.graphql",
+                    "no.nav.helse.spleis.graphql",
+                )
+            hooks = schemaGeneratorHooks
+            mutations = schemaBuilder.mutations()
+            queries = schemaBuilder.queries()
+        }
+    }
 
     routing {
-        route("graphql") {
-            authenticate("oidc") {
-                install(GraphQLMetrikker)
-                queryHandler(server)
-                playground()
-            }
+        authenticate("oidc") {
+            graphQLPostRoute()
+            graphiQLRoute()
+            install(GraphQLMetrikker)
         }
     }
 }
-
-internal fun Route.queryHandler(server: GraphQLServer<ApplicationRequest>) {
-    post {
-        sikkerLogg.trace("Starter behandling av graphql-kall")
-        val start = System.nanoTime()
-        val result = server.execute(call.request)
-        val tidslogging = "Kall behandlet etter ${tidBrukt(start).toMillis()} ms"
-
-        if (result != null) {
-            sikkerLogg.trace("$tidslogging, starter mapping")
-            val json = objectMapper.writeValueAsString(result)
-            sikkerLogg.trace("Respons mappet etter ${tidBrukt(start).toMillis()} ms")
-            call.respond(json)
-        } else {
-            sikkerLogg.trace("$tidslogging, men noe gikk galt")
-        }
-    }
-}
-
-private val sikkerLogg: Logger = LoggerFactory.getLogger("tjenestekall")
-
-private fun tidBrukt(start: Long): Duration = Duration.ofNanos(System.nanoTime() - start)
-
-private fun Route.playground() {
-    get("playground") {
-        call.respondText(buildPlaygroundHtml("graphql", "subscriptions"), ContentType.Text.Html)
-    }
-}
-
-private fun buildPlaygroundHtml(
-    graphQLEndpoint: String,
-    subscriptionsEndpoint: String,
-) = Application::class.java.classLoader.getResource("graphql-playground.html")?.readText()
-    ?.replace("\${graphQLEndpoint}", graphQLEndpoint)?.replace("\${subscriptionsEndpoint}", subscriptionsEndpoint)
-    ?: throw IllegalStateException("graphql-playground.html cannot be found in the classpath")

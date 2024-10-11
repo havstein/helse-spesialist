@@ -3,6 +3,8 @@ package no.nav.helse.spesialist.api.graphql
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.toSchema
+import com.expediagroup.graphql.server.operations.Mutation
+import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.GraphQLSchema
 import no.nav.helse.mediator.IBehandlingsstatistikkService
 import no.nav.helse.spesialist.api.Avviksvurderinghenter
@@ -87,118 +89,46 @@ internal class SchemaBuilder(
             )
         return toSchema(
             config = schemaConfig,
-            queries =
-                listOf(
-                    TopLevelObject(
-                        PersonQuery(
-                            personoppslagService =
-                                PersonService(
-                                    personApiDao = personApiDao,
-                                    egenAnsattApiDao = egenAnsattApiDao,
-                                    tildelingApiDao = tildelingApiDao,
-                                    arbeidsgiverApiDao = arbeidsgiverApiDao,
-                                    overstyringApiDao = overstyringApiDao,
-                                    risikovurderingApiDao = risikovurderingApiDao,
-                                    varselRepository = varselRepository,
-                                    oppgaveApiDao = oppgaveApiDao,
-                                    periodehistorikkDao = periodehistorikkDao,
-                                    notatDao = notatDao,
-                                    totrinnsvurderingApiDao = totrinnsvurderingApiDao,
-                                    påVentApiDao = påVentApiDao,
-                                    vergemålApiDao = vergemålApiDao,
-                                    snapshotService = snapshotService,
-                                    reservasjonClient = reservasjonClient,
-                                    oppgavehåndterer = oppgavehåndterer,
-                                    saksbehandlerhåndterer = saksbehandlerhåndterer,
-                                    avviksvurderinghenter = avviksvurderinghenter,
-                                    personhåndterer = personhåndterer,
-                                    stansAutomatiskBehandlinghåndterer = stansAutomatiskBehandlinghåndterer,
-                                ),
-                        ),
-                    ),
-                    TopLevelObject(
-                        OppgaverQuery(
-                            oppgavehåndterer = oppgavehåndterer,
-                        ),
-                    ),
-                    TopLevelObject(
-                        BehandlingsstatistikkQuery(
-                            behandlingsstatistikkMediator = behandlingsstatistikkMediator,
-                        ),
-                    ),
-                    TopLevelObject(
-                        NotatQuery(notatDao = notatDao),
-                    ),
-                    TopLevelObject(
-                        OpptegnelseQuery(
-                            saksbehandlerhåndterer = saksbehandlerhåndterer,
-                        ),
-                    ),
-                    TopLevelObject(
-                        DokumentQuery(
-                            personApiDao = personApiDao,
-                            egenAnsattApiDao = egenAnsattApiDao,
-                            dokumenthåndterer = dokumenthåndterer,
-                        ),
-                    ),
-                ),
-            mutations =
-                listOf(
-                    TopLevelObject(
-                        NotatMutation(notatDao = notatDao),
-                    ),
-                    TopLevelObject(
-                        VarselMutation(varselRepository = varselRepository),
-                    ),
-                    TopLevelObject(
-                        TildelingMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
-                    ),
-                    TopLevelObject(
-                        OpptegnelseMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
-                    ),
-                    TopLevelObject(
-                        OverstyringMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
-                    ),
-                    TopLevelObject(
-                        SkjonnsfastsettelseMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
-                    ),
-                    TopLevelObject(
-                        MinimumSykdomsgradMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
-                    ),
-                    TopLevelObject(
-                        TotrinnsvurderingMutation(
-                            saksbehandlerhåndterer = saksbehandlerhåndterer,
-                            oppgavehåndterer = oppgavehåndterer,
-                            totrinnsvurderinghåndterer = totrinnsvurderinghåndterer,
-                        ),
-                    ),
-                    TopLevelObject(
-                        VedtakMutation(
-                            oppgavehåndterer = oppgavehåndterer,
-                            totrinnsvurderinghåndterer = totrinnsvurderinghåndterer,
-                            saksbehandlerhåndterer = saksbehandlerhåndterer,
-                            godkjenninghåndterer = godkjenninghåndterer,
-                        ),
-                    ),
-                    TopLevelObject(
-                        PersonMutation(
-                            personhåndterer = personhåndterer,
-                        ),
-                    ),
-                    TopLevelObject(
-                        AnnulleringMutation(
-                            saksbehandlerhåndterer = saksbehandlerhåndterer,
-                        ),
-                    ),
-                    TopLevelObject(
-                        PaVentMutation(
-                            saksbehandlerhåndterer = saksbehandlerhåndterer,
-                        ),
-                    ),
-                    TopLevelObject(
-                        OpphevStansMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
-                    ),
-                ),
+            queries = queries().map { TopLevelObject(it) },
+            mutations = mutations().map { TopLevelObject(it) },
         )
     }
+
+    fun queries(): List<Query> =
+        listOf(
+            PersonQuery(
+                personoppslagService = PersonService(personApiDao = personApiDao, egenAnsattApiDao = egenAnsattApiDao, tildelingApiDao = tildelingApiDao, arbeidsgiverApiDao = arbeidsgiverApiDao, overstyringApiDao = overstyringApiDao, risikovurderingApiDao = risikovurderingApiDao, varselRepository = varselRepository, oppgaveApiDao = oppgaveApiDao, periodehistorikkDao = periodehistorikkDao, notatDao = notatDao, totrinnsvurderingApiDao = totrinnsvurderingApiDao, påVentApiDao = påVentApiDao, vergemålApiDao = vergemålApiDao, snapshotService = snapshotService, reservasjonClient = reservasjonClient, oppgavehåndterer = oppgavehåndterer, saksbehandlerhåndterer = saksbehandlerhåndterer, avviksvurderinghenter = avviksvurderinghenter, personhåndterer = personhåndterer, stansAutomatiskBehandlinghåndterer = stansAutomatiskBehandlinghåndterer),
+            ),
+            OppgaverQuery(oppgavehåndterer = oppgavehåndterer),
+            BehandlingsstatistikkQuery(behandlingsstatistikkMediator = behandlingsstatistikkMediator),
+            NotatQuery(notatDao = notatDao),
+            OpptegnelseQuery(saksbehandlerhåndterer = saksbehandlerhåndterer),
+            DokumentQuery(personApiDao = personApiDao, egenAnsattApiDao = egenAnsattApiDao, dokumenthåndterer = dokumenthåndterer),
+        )
+
+    fun mutations(): List<Mutation> =
+        listOf(
+            NotatMutation(notatDao = notatDao),
+            VarselMutation(varselRepository = varselRepository),
+            TildelingMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
+            OpptegnelseMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
+            OverstyringMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
+            SkjonnsfastsettelseMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
+            MinimumSykdomsgradMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
+            TotrinnsvurderingMutation(
+                saksbehandlerhåndterer = saksbehandlerhåndterer,
+                oppgavehåndterer = oppgavehåndterer,
+                totrinnsvurderinghåndterer = totrinnsvurderinghåndterer,
+            ),
+            VedtakMutation(
+                oppgavehåndterer = oppgavehåndterer,
+                totrinnsvurderinghåndterer = totrinnsvurderinghåndterer,
+                saksbehandlerhåndterer = saksbehandlerhåndterer,
+                godkjenninghåndterer = godkjenninghåndterer,
+            ),
+            PersonMutation(personhåndterer = personhåndterer),
+            AnnulleringMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
+            PaVentMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
+            OpphevStansMutation(saksbehandlerhåndterer = saksbehandlerhåndterer),
+        )
 }
