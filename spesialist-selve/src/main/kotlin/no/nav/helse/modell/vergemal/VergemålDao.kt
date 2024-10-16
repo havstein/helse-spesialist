@@ -1,8 +1,9 @@
 package no.nav.helse.modell.vergemal
 
+import kotliquery.Session
 import kotliquery.queryOf
-import kotliquery.sessionOf
-import no.nav.helse.db.TransactionalVergemålDao
+import no.nav.helse.db.FleksibelDao
+import no.nav.helse.db.Flexi
 import no.nav.helse.db.VergemålRepository
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
@@ -13,8 +14,16 @@ data class VergemålOgFremtidsfullmakt(
     val harFremtidsfullmakter: Boolean,
 )
 
-class VergemålDao(val dataSource: DataSource) : VergemålRepository {
+class VergemålDao(val dataSource: DataSource?, val session: Session? = null) :
+    VergemålRepository,
+    FleksibelDao by Flexi(dataSource, session) {
     override fun lagre(
+        fødselsnummer: String,
+        vergemålOgFremtidsfullmakt: VergemålOgFremtidsfullmakt,
+        fullmakt: Boolean,
+    ) = nySessionEllerTransacation { lagre(fødselsnummer, vergemålOgFremtidsfullmakt, fullmakt) }
+
+    private fun Session.lagre(
         fødselsnummer: String,
         vergemålOgFremtidsfullmakt: VergemålOgFremtidsfullmakt,
         fullmakt: Boolean,
@@ -38,48 +47,38 @@ class VergemålDao(val dataSource: DataSource) : VergemålRepository {
                 vergemål_oppdatert = :oppdatert,
                 fullmakt_oppdatert = :oppdatert
         """
-        sessionOf(dataSource).use { session ->
-            session.run(
-                queryOf(
-                    statement,
-                    mapOf(
-                        "fodselsnummer" to fødselsnummer.toLong(),
-                        "har_vergemal" to vergemålOgFremtidsfullmakt.harVergemål,
-                        "har_fremtidsfullmakter" to vergemålOgFremtidsfullmakt.harFremtidsfullmakter,
-                        "har_fullmakter" to fullmakt,
-                        "oppdatert" to LocalDateTime.now(),
-                    ),
-                ).asExecute,
-            )
-        }
+        run(
+            queryOf(
+                statement,
+                mapOf(
+                    "fodselsnummer" to fødselsnummer.toLong(),
+                    "har_vergemal" to vergemålOgFremtidsfullmakt.harVergemål,
+                    "har_fremtidsfullmakter" to vergemålOgFremtidsfullmakt.harFremtidsfullmakter,
+                    "har_fullmakter" to fullmakt,
+                    "oppdatert" to LocalDateTime.now(),
+                ),
+            ).asExecute,
+        )
     }
 
-    override fun harVergemål(fødselsnummer: String): Boolean? {
-        return sessionOf(dataSource).use { session ->
-            TransactionalVergemålDao(session).harVergemål(fødselsnummer)
-        }
-    }
+    override fun harVergemål(fødselsnummer: String): Boolean? = nySessionEllerTransacation { harVergemål(fødselsnummer) }
 
-    fun harFullmakt(fødselsnummer: String): Boolean? {
+    private fun Session.harVergemål(fødselsnummer: String): Boolean? {
         @Language("PostgreSQL")
-        val query = """
-            SELECT har_fremtidsfullmakter, har_fullmakter
-                FROM vergemal v
-                    INNER JOIN person p on p.id = v.person_ref
-                WHERE p.fodselsnummer = :fodselsnummer
+        val query =
             """
-        return sessionOf(dataSource).use { session ->
-            session.run(
-                queryOf(
-                    query,
-                    mapOf(
-                        "fodselsnummer" to fødselsnummer.toLong(),
-                    ),
-                )
-                    .map { row ->
-                        row.boolean("har_fremtidsfullmakter") || row.boolean("har_fullmakter")
-                    }.asSingle,
+            SELECT har_vergemal
+            FROM vergemal v
+                INNER JOIN person p on p.id = v.person_ref
+            WHERE p.fodselsnummer = :fodselsnummer
+            """.trimIndent()
+        return this.run(
+            queryOf(
+                query,
+                mapOf("fodselsnummer" to fødselsnummer.toLong()),
             )
-        }
+                .map { it.boolean("har_vergemal") }
+                .asSingle,
+        )
     }
 }
