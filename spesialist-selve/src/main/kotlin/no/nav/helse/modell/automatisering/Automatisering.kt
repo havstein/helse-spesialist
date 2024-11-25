@@ -318,15 +318,17 @@ internal class Automatisering(
         private val fødselsnummer: String,
         private val vedtaksperiodeId: UUID,
     ) : AutomatiseringValidering {
-        override fun måTilSaksbehandler() =
-            utbetaling.erRevurdering() &&
-                (utbetaling.refusjonstype() == Refusjonstype.NEGATIVT_BELØP).also {
-                    if (!it) {
-                        sikkerLogg.info(
-                            "Revurdering av $vedtaksperiodeId (person $fødselsnummer) har ikke et negativt beløp, og er godkjent for automatisering",
-                        )
-                    }
-                }
+        override fun måTilSaksbehandler(): Boolean {
+            if (!utbetaling.erRevurdering()) return false
+
+            val erRefusjonNegativtBeløp = utbetaling.refusjonstype() == Refusjonstype.NEGATIVT_BELØP
+            if (!erRefusjonNegativtBeløp) {
+                sikkerLogg.info(
+                    "Revurdering av $vedtaksperiodeId (person $fødselsnummer) har ikke et negativt beløp, og kan godkjennes automatisk.",
+                )
+            }
+            return erRefusjonNegativtBeløp
+        }
 
         override fun forklaring() = "Utbetalingen er revurdering med negativt beløp"
     }
