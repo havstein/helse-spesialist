@@ -119,7 +119,7 @@ internal class Automatisering(
             -> return Automatiseringsresultat.KanIkkeAutomatiseres(listOf(resultat.årsak))
             is AutomatiserKorrigertSøknadResultat.SkyldesIkkeKorrigertSøknad,
             is SkyldesKorrigertSøknad.KanAutomatiseres,
-            -> {}
+            -> Unit
         }
 
         if (!erEgenAnsattEllerSkjermet(fødselsnummer)) {
@@ -248,7 +248,7 @@ internal class Automatisering(
     ): List<String> {
         val risikovurdering =
             risikovurderingRepository.hentRisikovurdering(vedtaksperiodeId)
-                ?: validering("Mangler risikovurdering") { false }
+                ?: validering("Mangler risikovurdering") { true }
         val unntattFraAutomatisering =
             stansAutomatiskBehandlinghåndterer.sjekkOmAutomatiseringErStanset(
                 fødselsnummer,
@@ -266,31 +266,29 @@ internal class Automatisering(
 
         return valider(
             risikovurdering,
-            validering("Unntatt fra automatisk godkjenning") { !unntattFraAutomatisering },
-            validering("Har varsler") { !forhindrerAutomatisering },
+            validering("Unntatt fra automatisk godkjenning") { unntattFraAutomatisering },
+            validering("Har varsler") { forhindrerAutomatisering },
             validering("Det finnes åpne oppgaver på sykepenger i Gosys") {
-                antallÅpneGosysoppgaver?.let { it == 0 } ?: false
+                antallÅpneGosysoppgaver?.let { it > 0 } ?: true
             },
-            validering("Bruker er under verge") { !harVergemål },
-            validering("Bruker tilhører utlandsenhet") { !tilhørerUtlandsenhet },
-            validering("Utbetaling til sykmeldt") { !skalStoppesPgaUTS },
+            validering("Bruker er under verge") { harVergemål },
+            validering("Bruker tilhører utlandsenhet") { tilhørerUtlandsenhet },
+            validering("Utbetaling til sykmeldt") { skalStoppesPgaUTS },
             AutomatiserRevurderinger(utbetaling, fødselsnummer, vedtaksperiodeId),
-            validering("Vedtaksperioden har en pågående overstyring") { !harPågåendeOverstyring },
+            validering("Vedtaksperioden har en pågående overstyring") { harPågåendeOverstyring },
         )
     }
 
     private fun valider(vararg valideringer: AutomatiseringValidering) =
-        valideringer.toList()
-            .filterNot(AutomatiseringValidering::erAautomatiserbar)
-            .map(AutomatiseringValidering::error)
+        valideringer.filter { it.måTilSaksbehandler() }.map { it.forklaring() }
 
     private fun validering(
-        error: String,
-        automatiserbar: () -> Boolean,
+        forklaring: String,
+        predikat: () -> Boolean,
     ) = object : AutomatiseringValidering {
-        override fun erAautomatiserbar() = automatiserbar()
+        override fun måTilSaksbehandler() = predikat()
 
-        override fun error() = error
+        override fun forklaring() = forklaring
     }
 
     private fun erSpesialsakSomKanAutomatiseres(
@@ -320,17 +318,17 @@ internal class Automatisering(
         private val fødselsnummer: String,
         private val vedtaksperiodeId: UUID,
     ) : AutomatiseringValidering {
-        override fun erAautomatiserbar() =
-            !utbetaling.erRevurdering() ||
-                (utbetaling.refusjonstype() != Refusjonstype.NEGATIVT_BELØP).also {
-                    if (it) {
+        override fun måTilSaksbehandler() =
+            utbetaling.erRevurdering() &&
+                (utbetaling.refusjonstype() == Refusjonstype.NEGATIVT_BELØP).also {
+                    if (!it) {
                         sikkerLogg.info(
                             "Revurdering av $vedtaksperiodeId (person $fødselsnummer) har ikke et negativt beløp, og er godkjent for automatisering",
                         )
                     }
                 }
 
-        override fun error() = "Utbetalingen er revurdering med negativt beløp"
+        override fun forklaring() = "Utbetalingen er revurdering med negativt beløp"
     }
 
     fun erStikkprøve(
@@ -358,7 +356,7 @@ internal interface Stikkprøver {
 }
 
 internal interface AutomatiseringValidering {
-    fun erAautomatiserbar(): Boolean
+    fun måTilSaksbehandler(): Boolean
 
-    fun error(): String
+    fun forklaring(): String
 }

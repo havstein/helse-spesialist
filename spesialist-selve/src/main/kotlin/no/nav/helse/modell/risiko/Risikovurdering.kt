@@ -7,7 +7,7 @@ class Risikovurdering private constructor(private val kanGodkjennesAutomatisk: B
         internal fun restore(kanGodkjennesAutomatisk: Boolean) = Risikovurdering(kanGodkjennesAutomatisk)
     }
 
-    override fun erAautomatiserbar() = kanGodkjennesAutomatisk
+    override fun måTilSaksbehandler() = !kanGodkjennesAutomatisk
 
-    override fun error() = "Vilkårsvurdering for arbeidsuførhet, aktivitetsplikt eller medvirkning er ikke oppfylt"
+    override fun forklaring() = "Vilkårsvurdering for arbeidsuførhet, aktivitetsplikt eller medvirkning er ikke oppfylt"
 }
