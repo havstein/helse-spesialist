@@ -26,13 +26,11 @@ class MinimumSykdomsgradMutation(private val saksbehandlerhåndterer: Saksbehand
     ): DataFetcherResult<Boolean> =
         withContext(Dispatchers.IO) {
             val saksbehandler: SaksbehandlerFraApi = env.graphQlContext.get(SAKSBEHANDLER)
-            if (minimumSykdomsgrad.perioderVurdertOk.isEmpty() && minimumSykdomsgrad.perioderVurdertIkkeOk.isEmpty()) {
-                return@withContext DataFetcherResult.newResult<Boolean>()
-                    .error(
-                        GraphqlErrorException.newErrorException().message("Mangler vurderte perioder")
-                            .extensions(mapOf("code" to 400)).build(),
-                    )
+            when (val result = valider(minimumSykdomsgrad)) {
+                is UgyldigInput -> return@withContext DataFetcherResult.newResult<Boolean>().error(result.graphqlError)
                     .build()
+
+                else -> Unit
             }
 
             try {
@@ -49,7 +47,27 @@ class MinimumSykdomsgradMutation(private val saksbehandlerhåndterer: Saksbehand
             DataFetcherResult.newResult<Boolean>().data(true).build()
         }
 
+    private fun valider(minimumSykdomsgrad: MinimumSykdomsgrad): Valideringsresultat {
+        if (minimumSykdomsgrad.perioderVurdertOk.isEmpty() && minimumSykdomsgrad.perioderVurdertIkkeOk.isEmpty()) {
+            return UgyldigInput.ManglerVurdertePerioder(
+                GraphqlErrorException.newErrorException().message("Mangler vurderte perioder")
+                    .extensions(mapOf("code" to 400)).build(),
+            )
+        }
+        return Ok(minimumSykdomsgrad)
+    }
+
     private fun kunneIkkeVurdereMinimumSykdomsgradError(): GraphQLError =
         GraphqlErrorException.newErrorException().message("Kunne ikke vurdere minimum sykdomsgrad")
             .extensions(mapOf("code" to 500)).build()
+}
+
+private sealed interface Valideringsresultat
+
+private class Ok(val value: MinimumSykdomsgrad) : Valideringsresultat
+
+private sealed class UgyldigInput() : Valideringsresultat {
+    abstract val graphqlError: GraphQLError
+
+    class ManglerVurdertePerioder(override val graphqlError: GraphQLError) : UgyldigInput()
 }
