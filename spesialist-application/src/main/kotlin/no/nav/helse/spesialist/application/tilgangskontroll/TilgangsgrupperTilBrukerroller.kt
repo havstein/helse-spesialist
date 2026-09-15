@@ -1,6 +1,7 @@
 package no.nav.helse.spesialist.application.tilgangskontroll
 
 import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import java.util.*
 
 class TilgangsgrupperTilBrukerroller(
@@ -15,7 +16,7 @@ class TilgangsgrupperTilBrukerroller(
     val fagkoordinator: List<UUID>,
     val supersaksbehandler: List<UUID>,
 ) {
-    fun finnBrukerrollerFraTilgangsgrupper(tilgangsgrupper: Collection<UUID>): Set<Brukerrolle> = Brukerrolle.entries.filter { rolle -> tilgangsgrupper.any { it in uuiderFor(rolle) } }.toSet()
+    fun finnBrukerrollerFraTilgangsgrupper(tilgangsgrupper: Collection<UUID>): Brukerroller = Brukerroller(Brukerrolle.entries.filter { rolle -> tilgangsgrupper.any { it in uuiderFor(rolle) } }.toSet())
 
     private fun uuiderFor(rolle: Brukerrolle): List<UUID> =
         when (rolle) {

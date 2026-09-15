@@ -10,6 +10,7 @@ import no.nav.helse.spesialist.domain.testfixtures.lagOppgave
 import no.nav.helse.spesialist.domain.testfixtures.lagVedtaksperiode
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagPerson
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagSaksbehandler
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.util.UUID
@@ -34,7 +35,7 @@ class PutTildelingBehandlerTest {
         val opprinneligSaksbehandler = lagSaksbehandler()
         val oppgave =
             lagOppgave(behandling.spleisBehandlingId!!, UUID.randomUUID(), vedtaksperiode.id).also {
-                it.tildelTil(opprinneligSaksbehandler, emptySet())
+                it.tildelTil(opprinneligSaksbehandler, Brukerroller())
                 when (tilstand) {
                     Oppgave.Tilstand.AvventerSystem -> it.avventerSystem(opprinneligSaksbehandler.ident, opprinneligSaksbehandler.id.value)
                     Oppgave.Tilstand.Ferdigstilt -> {
@@ -158,7 +159,7 @@ class PutTildelingBehandlerTest {
                 godkjenningsbehovId = UUID.randomUUID(),
                 vedtaksperiodeId = vedtaksperiode.id,
             ).also {
-                it.tildelTil(saksbehandler, emptySet())
+                it.tildelTil(saksbehandler, Brukerroller())
                 oppgaveRepository.lagre(it)
                 it.konsumerHendelser() // nullstill hendelser som ikke er relevante for testen
             }
@@ -199,7 +200,7 @@ class PutTildelingBehandlerTest {
                 godkjenningsbehovId = UUID.randomUUID(),
                 vedtaksperiodeId = vedtaksperiode.id,
             ).also {
-                it.tildelTil(saksbehandlerSomErTildeltOppgaven, emptySet())
+                it.tildelTil(saksbehandlerSomErTildeltOppgaven, Brukerroller())
                 oppgaveRepository.lagre(it)
                 it.konsumerHendelser() // nullstill hendelser som ikke er relevante for testen
             }

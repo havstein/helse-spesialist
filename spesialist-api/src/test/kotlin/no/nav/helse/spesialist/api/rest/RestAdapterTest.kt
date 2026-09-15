@@ -17,6 +17,7 @@ import no.nav.helse.spesialist.api.auth.AccessToken
 import no.nav.helse.spesialist.api.auth.SaksbehandlerPrincipal
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagSaksbehandler
 import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import no.nav.helse.spesialist.domain.tilgangskontroll.Tilgang
 import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.test.Test
@@ -38,7 +39,7 @@ class RestAdapterTest {
                                 every { principal<SaksbehandlerPrincipal>() } returns
                                     SaksbehandlerPrincipal(
                                         saksbehandler = lagSaksbehandler(),
-                                        brukerroller = Brukerrolle.entries.toSet(),
+                                        brukerroller = Brukerroller(Brukerrolle.entries.toSet()),
                                         tilganger = Tilgang.entries.toSet(),
                                         accessToken = AccessToken("test_token"),
                                     )

@@ -23,7 +23,7 @@ import no.nav.helse.spesialist.application.PersonPseudoIdProvider
 import no.nav.helse.spesialist.application.logg.MdcKey
 import no.nav.helse.spesialist.application.logg.loggError
 import no.nav.helse.spesialist.application.logg.loggWarn
-import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import no.nav.helse.spesialist.domain.tilgangskontroll.Tilgang
 import org.slf4j.MDC
 import tools.jackson.module.kotlin.jacksonMapperBuilder
@@ -74,7 +74,7 @@ class RestAdapter(
 
     suspend fun <RESPONSE, ERROR : ApiErrorCode> wrapOgDeleger(
         call: RoutingCall,
-        påkrevdeBrukerroller: Set<Brukerrolle>,
+        påkrevdeBrukerroller: Brukerroller,
         påkrevdTilgang: Tilgang,
         behandler: (KallKontekst) -> RestResponse<RESPONSE, ERROR>,
     ) {
@@ -90,9 +90,7 @@ class RestAdapter(
                 return@withSaksbehandlerIdentMdc
             }
 
-            val harPåkrevdeBrukerroller =
-                principal.brukerroller.any { it in påkrevdeBrukerroller } || påkrevdeBrukerroller.isEmpty()
-            if (!harPåkrevdeBrukerroller) {
+            if (!principal.brukerroller.harTilstrekkeligRolle(påkrevdeBrukerroller)) {
                 call.respondWithProblem(genericProblemDetails(HttpStatusCode.Forbidden))
                 return@withSaksbehandlerIdentMdc
             }

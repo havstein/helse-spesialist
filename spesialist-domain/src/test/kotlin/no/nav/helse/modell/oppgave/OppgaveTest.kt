@@ -21,6 +21,7 @@ import no.nav.helse.spesialist.domain.testfixtures.testdata.finnOppgavetype
 import no.nav.helse.spesialist.domain.testfixtures.testdata.finnPeriodetype
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagSaksbehandler
 import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
@@ -49,7 +50,7 @@ internal class OppgaveTest {
         val oppgave = nyOppgave(SØKNAD)
         oppgave.forsøkTildelingVedReservasjon(
             saksbehandler = saksbehandlerUtenTilgang,
-            brukerroller = emptySet(),
+            brukerroller = Brukerroller(),
         )
 
         inspektør(oppgave) {
@@ -65,7 +66,7 @@ internal class OppgaveTest {
         val saksbehandler = lagSaksbehandler()
         oppgave.forsøkTildelingVedReservasjon(
             saksbehandler = saksbehandler,
-            brukerroller = Brukerrolle.entries.toSet(),
+            brukerroller = Brukerroller(Brukerrolle.entries.toSet()),
         )
 
         inspektør(oppgave) {
@@ -80,7 +81,7 @@ internal class OppgaveTest {
         assertThrows<ManglerTilgang> {
             oppgave.forsøkTildelingVedReservasjon(
                 saksbehandler = lagSaksbehandler(),
-                brukerroller = setOf(Brukerrolle.Kode7),
+                brukerroller = Brukerroller(Brukerrolle.Kode7),
             )
         }
 
@@ -95,7 +96,7 @@ internal class OppgaveTest {
         val oppgave = nyOppgave(PÅ_VENT, SØKNAD)
         oppgave.forsøkTildelingVedReservasjon(
             saksbehandler = saksbehandlerUtenTilgang,
-            brukerroller = emptySet(),
+            brukerroller = Brukerroller(),
         )
 
         inspektør(oppgave) {
@@ -110,7 +111,7 @@ internal class OppgaveTest {
         val oppgave = nyOppgave(PÅ_VENT, STIKKPRØVE)
         oppgave.forsøkTildelingVedReservasjon(
             saksbehandler = saksbehandlerUtenTilgang,
-            brukerroller = emptySet(),
+            brukerroller = Brukerroller(),
         )
 
         inspektør(oppgave) {
@@ -124,7 +125,7 @@ internal class OppgaveTest {
         val oppgave = nyOppgave()
         oppgave.tildelTil(
             saksbehandler = saksbehandlerUtenTilgang,
-            brukerroller = emptySet(),
+            brukerroller = Brukerroller(),
         )
         oppgave.forsøkAvmelding(saksbehandlerUtenTilgang)
 
@@ -140,7 +141,7 @@ internal class OppgaveTest {
         val oppgave = nyOppgave()
         oppgave.tildelTil(
             saksbehandler = lagSaksbehandler(),
-            brukerroller = emptySet(),
+            brukerroller = Brukerroller(),
         )
         oppgave.forsøkAvmelding(saksbehandlerUtenTilgang)
 
@@ -166,7 +167,7 @@ internal class OppgaveTest {
         assertThrows<ManglerTilgang> {
             oppgave.forsøkTildelingVedReservasjon(
                 saksbehandler = saksbehandlerUtenTilgang,
-                brukerroller = emptySet(),
+                brukerroller = Brukerroller(),
             )
         }
 
@@ -183,7 +184,7 @@ internal class OppgaveTest {
         assertThrows<ManglerTilgang> {
             oppgave.tildelTil(
                 saksbehandler = saksbehandlerUtenTilgang,
-                brukerroller = emptySet(),
+                brukerroller = Brukerroller(),
             )
         }
 
@@ -200,7 +201,7 @@ internal class OppgaveTest {
         val saksbehandlerMedTilgang = lagSaksbehandler()
         oppgave.tildelTil(
             saksbehandler = saksbehandlerMedTilgang,
-            brukerroller = Brukerrolle.entries.toSet(),
+            brukerroller = Brukerroller(Brukerrolle.entries.toSet()),
         )
 
         inspektør(oppgave) {
@@ -246,7 +247,7 @@ internal class OppgaveTest {
         val oppgave = nyOppgave(SØKNAD)
         oppgave.forsøkTildelingVedReservasjon(
             saksbehandler = saksbehandlerUtenTilgang,
-            brukerroller = emptySet(),
+            brukerroller = Brukerroller(),
         )
         oppgave.sendTilBeslutter(null)
         inspektør(oppgave) {
@@ -279,12 +280,12 @@ internal class OppgaveTest {
         val oppgave = nyOppgave(SØKNAD)
         oppgave.forsøkTildelingVedReservasjon(
             saksbehandler = saksbehandlerUtenTilgang,
-            brukerroller = emptySet(),
+            brukerroller = Brukerroller(),
         )
         oppgave.sendTilBeslutter(saksbehandlerUtenTilgang)
         oppgave.forsøkTildelingVedReservasjon(
             saksbehandler = beslutter,
-            brukerroller = Brukerrolle.entries.toSet(),
+            brukerroller = Brukerroller(Brukerrolle.entries.toSet()),
         )
         oppgave.sendIRetur(beslutter)
         inspektør(oppgave) {
@@ -442,7 +443,7 @@ internal class OppgaveTest {
         val oppgave = nyOppgave(SØKNAD)
         oppgave.forsøkTildelingVedReservasjon(
             saksbehandler = saksbehandlerUtenTilgang,
-            brukerroller = emptySet(),
+            brukerroller = Brukerroller(),
         )
         oppgave.leggPåVent(true, saksbehandlerUtenTilgang)
 
@@ -468,7 +469,7 @@ internal class OppgaveTest {
         val oppgave = nyOppgave(SØKNAD)
         oppgave.forsøkTildelingVedReservasjon(
             saksbehandler = saksbehandlerUtenTilgang,
-            brukerroller = emptySet(),
+            brukerroller = Brukerroller(),
         )
         oppgave.leggPåVent(true, beslutter)
 
@@ -484,7 +485,7 @@ internal class OppgaveTest {
         val oppgave = nyOppgave(SØKNAD)
         oppgave.forsøkTildelingVedReservasjon(
             saksbehandler = saksbehandlerUtenTilgang,
-            brukerroller = emptySet(),
+            brukerroller = Brukerroller(),
         )
         oppgave.leggPåVent(false, saksbehandlerUtenTilgang)
 
@@ -513,7 +514,7 @@ internal class OppgaveTest {
         val oppgave = nyOppgave(SØKNAD)
         oppgave.forsøkTildelingVedReservasjon(
             saksbehandler = saksbehandlerUtenTilgang,
-            brukerroller = emptySet(),
+            brukerroller = Brukerroller(),
         )
         oppgave.leggPåVent(true, saksbehandlerUtenTilgang)
 
@@ -533,7 +534,7 @@ internal class OppgaveTest {
         val oppgave = nyOppgave(SØKNAD)
         oppgave.forsøkTildelingVedReservasjon(
             saksbehandler = saksbehandlerUtenTilgang,
-            brukerroller = emptySet(),
+            brukerroller = Brukerroller(),
         )
         oppgave.leggPåVent(true, saksbehandlerUtenTilgang)
         oppgave.fjernFraPåVent()

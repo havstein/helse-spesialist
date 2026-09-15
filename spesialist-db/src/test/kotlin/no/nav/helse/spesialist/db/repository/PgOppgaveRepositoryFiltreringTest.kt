@@ -8,6 +8,7 @@ import no.nav.helse.spesialist.domain.oppgave.Egenskap
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagFødselsnummer
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagSaksbehandler
 import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Isolated
@@ -204,7 +205,7 @@ class PgOppgaveRepositoryFiltreringTest : AbstractDBIntegrationTest() {
         val behandling = opprettBehandling(vedtaksperiode)
         val oppgave =
             opprettOppgave(vedtaksperiode, behandling, egenskaper = setOf(Egenskap.SØKNAD, Egenskap.BESLUTTER))
-                .tildelOgLagre(beslutter, brukerroller = setOf(Brukerrolle.Beslutter))
+                .tildelOgLagre(beslutter, brukerroller = Brukerroller(Brukerrolle.Beslutter))
 
         nyTotrinnsvurdering(person.id.value, oppgave)
             .sendTilBeslutterOgLagre(saksbehandler)
@@ -229,7 +230,7 @@ class PgOppgaveRepositoryFiltreringTest : AbstractDBIntegrationTest() {
         val behandling = opprettBehandling(vedtaksperiode)
         val oppgave =
             opprettOppgave(vedtaksperiode, behandling, egenskaper = setOf(Egenskap.SØKNAD, Egenskap.BESLUTTER))
-                .tildelOgLagre(beslutter, brukerroller = setOf(Brukerrolle.Beslutter))
+                .tildelOgLagre(beslutter, brukerroller = Brukerroller(Brukerrolle.Beslutter))
 
         nyTotrinnsvurdering(person.id.value, oppgave)
             .sendTilBeslutterOgLagre(saksbehandler1)

@@ -10,6 +10,7 @@ import no.nav.helse.spesialist.domain.testfixtures.lagOppgave
 import no.nav.helse.spesialist.domain.testfixtures.lagVedtaksperiode
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagPerson
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagSaksbehandler
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import no.nav.helse.spesialist.domain.tilgangskontroll.Tilgang
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
@@ -31,7 +32,7 @@ class GetTildelingForPersonIntegrationTest {
         val vedtaksperiode = lagVedtaksperiode(identitetsnummer = person.id).also(sessionContext.vedtaksperiodeRepository::lagre)
         val behandling = lagBehandling(vedtaksperiodeId = vedtaksperiode.id).also(sessionContext.behandlingRepository::lagre)
         lagOppgave(behandling.spleisBehandlingId!!, UUID.randomUUID(), vedtaksperiode.id)
-            .also { it.tildelTil(saksbehandler, brukerroller = setOf()) }
+            .also { it.tildelTil(saksbehandler, brukerroller = Brukerroller()) }
             .also(sessionContext.oppgaveRepository::lagre)
 
         // When:

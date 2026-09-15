@@ -9,6 +9,7 @@ import no.nav.helse.spesialist.domain.testfixtures.lagOppgave
 import no.nav.helse.spesialist.domain.testfixtures.lagVedtaksperiode
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagPerson
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagSaksbehandler
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -34,7 +35,7 @@ class DeleteTildelingBehandlerTest {
         val saksbehandler = lagSaksbehandler().also(saksbehandlerRepository::lagre)
         val oppgave =
             lagOppgave(spleisBehandlingId, UUID.randomUUID(), vedtaksperiode.id).also {
-                it.tildelTil(saksbehandler, brukerroller = setOf())
+                it.tildelTil(saksbehandler, brukerroller = Brukerroller())
                 oppgaveRepository.lagre(it)
                 it.konsumerHendelser() // nullstill hendelser som ikke er relevante for testen
             }

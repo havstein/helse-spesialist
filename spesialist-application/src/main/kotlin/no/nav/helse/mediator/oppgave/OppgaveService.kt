@@ -19,7 +19,7 @@ import no.nav.helse.spesialist.domain.SpleisBehandlingId
 import no.nav.helse.spesialist.domain.VedtaksperiodeId
 import no.nav.helse.spesialist.domain.oppgave.*
 import no.nav.helse.spesialist.domain.oppgave.Oppgave.Companion.ny
-import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import java.sql.SQLException
 import java.util.*
 
@@ -127,7 +127,7 @@ class OppgaveService(
             }
 
         when (val result = brukerrollehenter.hentBrukerroller(saksbehandler.id)) {
-            is Either.Failure<Set<Brukerrolle>, Feil> -> {
+            is Either.Failure<Brukerroller, Feil> -> {
                 when (result.error) {
                     Feil.SaksbehandlerFinnesIkke -> {
                         logg.info("Saksbehandler personen er reservert til eksisterer ikke (lenger). Tildeler ikke oppgaven.")
@@ -135,7 +135,7 @@ class OppgaveService(
                 }
             }
 
-            is Either.Success<Set<Brukerrolle>, Feil> -> {
+            is Either.Success<Brukerroller, Feil> -> {
                 try {
                     oppgave.forsøkTildelingVedReservasjon(saksbehandler, result.result)
                 } catch (manglerTilgang: ManglerTilgang) {
