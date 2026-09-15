@@ -9,6 +9,7 @@ import no.nav.helse.spesialist.application.tilgangskontroll.Brukerrollehenter
 import no.nav.helse.spesialist.client.entraid.testfixtures.ClientEntraIDModuleIntegrationTestFixture
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagSaksbehandler
 import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -40,8 +41,8 @@ class MsGraphTilgangsgruppehenterTest {
         val token = tilgangsgruppehenter.hentBrukerroller(lagSaksbehandler().id)
 
         // Then:
-        assertIs<Either.Success<Set<Brukerrolle>, Brukerrollehenter.Feil>>(token)
-        assertEquals(setOf(Brukerrolle.Beslutter, Brukerrolle.EgenAnsatt), token.result)
+        assertIs<Either.Success<Brukerroller, Brukerrollehenter.Feil>>(token)
+        assertEquals(Brukerroller(Brukerrolle.Beslutter, Brukerrolle.EgenAnsatt), token.result)
     }
 
     @Test
@@ -57,8 +58,8 @@ class MsGraphTilgangsgruppehenterTest {
         val token = tilgangsgruppehenter.hentBrukerroller(lagSaksbehandler().id)
 
         // Then:
-        assertIs<Either.Success<Set<Brukerrolle>, Brukerrollehenter.Feil>>(token)
-        assertEquals(emptySet(), token.result)
+        assertIs<Either.Success<Brukerroller, Brukerrollehenter.Feil>>(token)
+        assertEquals(Brukerroller(), token.result)
     }
 
     @Test
@@ -74,7 +75,7 @@ class MsGraphTilgangsgruppehenterTest {
         val token = tilgangsgruppehenter.hentBrukerroller(lagSaksbehandler().id)
 
         // Then:
-        assertIs<Either.Failure<Set<Brukerrolle>, Brukerrollehenter.Feil>>(token)
+        assertIs<Either.Failure<Brukerroller, Brukerrollehenter.Feil>>(token)
         assertIs<Brukerrollehenter.Feil.SaksbehandlerFinnesIkke>(token.error)
     }
 

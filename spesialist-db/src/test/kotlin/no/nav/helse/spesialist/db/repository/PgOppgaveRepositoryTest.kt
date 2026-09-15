@@ -14,6 +14,7 @@ import no.nav.helse.spesialist.domain.testfixtures.testdata.finnMottaker
 import no.nav.helse.spesialist.domain.testfixtures.testdata.finnOppgavetype
 import no.nav.helse.spesialist.domain.testfixtures.testdata.finnPeriodetype
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagSaksbehandler
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -93,7 +94,7 @@ class PgOppgaveRepositoryTest : AbstractDBIntegrationTest() {
     @Test
     fun `tildel oppgave`() {
         val oppgave = lagOppgave()
-        oppgave.tildelTil(saksbehandler, emptySet())
+        oppgave.tildelTil(saksbehandler, Brukerroller())
 
         repository.lagre(oppgave)
         val funnetOppgave = repository.finnOrNull(oppgave.id)
@@ -104,7 +105,7 @@ class PgOppgaveRepositoryTest : AbstractDBIntegrationTest() {
     @Test
     fun `avmeld oppgave`() {
         val oppgave = lagOppgave()
-        oppgave.tildelTil(saksbehandler, emptySet())
+        oppgave.tildelTil(saksbehandler, Brukerroller())
         repository.lagre(oppgave)
 
         oppgave.forsøkAvmelding(saksbehandler)

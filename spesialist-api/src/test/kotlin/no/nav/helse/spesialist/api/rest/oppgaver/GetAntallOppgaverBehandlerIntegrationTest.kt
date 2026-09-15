@@ -7,6 +7,7 @@ import no.nav.helse.spesialist.domain.testfixtures.lagDialog
 import no.nav.helse.spesialist.domain.testfixtures.lagOppgave
 import no.nav.helse.spesialist.domain.testfixtures.lagPåVent
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagSaksbehandler
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.test.Test
@@ -42,16 +43,16 @@ class GetAntallOppgaverBehandlerIntegrationTest {
         val annenSaksbehandler = lagSaksbehandler()
 
         lagOppgave(SpleisBehandlingId(UUID.randomUUID()), UUID.randomUUID())
-            .also { it.tildelTil(saksbehandler, emptySet()) }
+            .also { it.tildelTil(saksbehandler, Brukerroller()) }
             .also(sessionContext.oppgaveRepository::lagre)
 
         lagOppgave(SpleisBehandlingId(UUID.randomUUID()), UUID.randomUUID())
-            .also { it.tildelTil(saksbehandler, emptySet()) }
+            .also { it.tildelTil(saksbehandler, Brukerroller()) }
             .also(sessionContext.oppgaveRepository::lagre)
 
         lagOppgave(SpleisBehandlingId(UUID.randomUUID()), UUID.randomUUID())
             .also {
-                it.tildelTil(annenSaksbehandler, emptySet())
+                it.tildelTil(annenSaksbehandler, Brukerroller())
                 it.leggPåVent(skalTildeles = true, saksbehandler = saksbehandler)
             }.also(sessionContext.oppgaveRepository::lagre)
 
@@ -75,7 +76,7 @@ class GetAntallOppgaverBehandlerIntegrationTest {
         val oppgave =
             lagOppgave(SpleisBehandlingId(UUID.randomUUID()), UUID.randomUUID())
                 .also {
-                    it.tildelTil(saksbehandler, emptySet())
+                    it.tildelTil(saksbehandler, Brukerroller())
                     it.leggPåVent(skalTildeles = true, saksbehandler = saksbehandler)
                 }.also(sessionContext.oppgaveRepository::lagre)
 

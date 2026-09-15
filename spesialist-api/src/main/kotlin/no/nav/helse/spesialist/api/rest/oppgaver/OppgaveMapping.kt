@@ -12,6 +12,7 @@ import no.nav.helse.spesialist.domain.*
 import no.nav.helse.spesialist.domain.oppgave.Egenskap
 import no.nav.helse.spesialist.domain.oppgave.Oppgave
 import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import java.time.ZoneId
 
 internal fun OppgaveRepository.Side<OppgaveRepository.OppgaveProjeksjon>.tilApiType(
@@ -126,15 +127,15 @@ internal fun <K, V> Map<K, V>.getRequired(key: K): V =
     }
 
 internal fun Egenskap.skalDukkeOppFor(
-    brukerroller: Set<Brukerrolle>,
+    brukerroller: Brukerroller,
 ): Boolean =
     Oppgave.harTilgangTilEgenskap(
         egenskap = this,
         brukerroller = brukerroller,
     ) &&
         when (this) {
-            Egenskap.BESLUTTER -> Brukerrolle.Beslutter in brukerroller
-            Egenskap.STIKKPRØVE -> Brukerrolle.Stikkprøve in brukerroller
+            Egenskap.BESLUTTER -> brukerroller.harRolle(Brukerrolle.Beslutter)
+            Egenskap.STIKKPRØVE -> brukerroller.harRolle(Brukerrolle.Stikkprøve)
             else -> true
         }
 

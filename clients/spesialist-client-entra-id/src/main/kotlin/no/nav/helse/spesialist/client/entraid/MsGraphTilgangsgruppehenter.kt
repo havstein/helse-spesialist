@@ -9,7 +9,7 @@ import no.nav.helse.spesialist.application.logg.teamLogs
 import no.nav.helse.spesialist.application.tilgangskontroll.Brukerrollehenter
 import no.nav.helse.spesialist.application.tilgangskontroll.TilgangsgrupperTilBrukerroller
 import no.nav.helse.spesialist.domain.SaksbehandlerOid
-import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import org.apache.hc.client5.http.fluent.Request
 import org.apache.hc.core5.http.ContentType
 import org.apache.hc.core5.http.io.entity.EntityUtils
@@ -24,7 +24,7 @@ class MsGraphTilgangsgruppehenter(
 ) : Brukerrollehenter {
     private val objectMapper = jacksonObjectMapper()
 
-    override fun hentBrukerroller(saksbehandlerOid: SaksbehandlerOid): Either<Set<Brukerrolle>, Brukerrollehenter.Feil> {
+    override fun hentBrukerroller(saksbehandlerOid: SaksbehandlerOid): Either<Brukerroller, Brukerrollehenter.Feil> {
         loggInfo("Henter tilgangsgrupper for saksbehandler", "saksbehandlerOid" to saksbehandlerOid)
         return timer.recordCallable {
             Request

@@ -5,6 +5,7 @@ import no.nav.helse.modell.automatisering.stikkprøve.Stikkprøver
 import no.nav.helse.spesialist.application.Either
 import no.nav.helse.spesialist.application.InMemoryRepositoriesAndDaos
 import no.nav.helse.spesialist.application.MockForsikringsvurderingHenter
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import no.nav.helse.spesialist.kafka.testfixtures.KafkaModuleTestRapidTestFixture
 
 class IntegrationTestFixture(
@@ -40,7 +41,7 @@ class IntegrationTestFixture(
 
                     override fun fullRefusjonEnArbeidsgiver() = false
                 },
-            brukerrollehenter = { Either.Success(emptySet()) },
+            brukerrollehenter = { Either.Success(Brukerroller()) },
             forsikringsvurderingHenter = forsikringHenter,
         ).also(KafkaModule::kobleOppRivers)
     }

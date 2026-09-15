@@ -5,17 +5,14 @@ import no.nav.helse.modell.ManglerTilgang
 import no.nav.helse.modell.OppgaveIkkeTildelt
 import no.nav.helse.modell.vedtaksperiode.Inntektskilde
 import no.nav.helse.modell.vedtaksperiode.Periodetype
-import no.nav.helse.spesialist.domain.NAVIdent
-import no.nav.helse.spesialist.domain.Saksbehandler
-import no.nav.helse.spesialist.domain.SaksbehandlerOid
-import no.nav.helse.spesialist.domain.SpleisBehandlingId
-import no.nav.helse.spesialist.domain.VedtaksperiodeId
+import no.nav.helse.spesialist.domain.*
 import no.nav.helse.spesialist.domain.ddd.Entity
 import no.nav.helse.spesialist.domain.ddd.ValueObject
 import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @JvmInline
 value class OppgaveId(
@@ -80,7 +77,7 @@ class Oppgave private constructor(
 
     fun tildelTil(
         saksbehandler: Saksbehandler,
-        brukerroller: Set<Brukerrolle>,
+        brukerroller: Brukerroller,
     ) {
         sjekkAtOppgaveKanTildeles(brukerroller, saksbehandler)
         when (tilstand) {
@@ -90,7 +87,7 @@ class Oppgave private constructor(
     }
 
     private fun sjekkAtOppgaveKanTildeles(
-        brukerroller: Set<Brukerrolle>,
+        brukerroller: Brukerroller,
         saksbehandler: Saksbehandler,
     ) {
         if (!kanTildelesTil(brukerroller = brukerroller)) {
@@ -105,7 +102,7 @@ class Oppgave private constructor(
 
     fun forsøkTildelingVedReservasjon(
         saksbehandler: Saksbehandler,
-        brukerroller: Set<Brukerrolle>,
+        brukerroller: Brukerroller,
     ) {
         logg.info("Oppgave med {} forsøkes tildelt grunnet reservasjon.", kv("oppgaveId", id.value))
         sikkerlogg.info(
@@ -268,7 +265,7 @@ class Oppgave private constructor(
     }
 
     fun kanTildelesTil(
-        brukerroller: Set<Brukerrolle>,
+        brukerroller: Brukerroller,
     ): Boolean =
         egenskaper.all {
             harTilgangTilEgenskap(
@@ -276,8 +273,8 @@ class Oppgave private constructor(
                 brukerroller = brukerroller,
             ) &&
                 when (it) {
-                    Egenskap.BESLUTTER -> Brukerrolle.Beslutter in brukerroller
-                    Egenskap.STIKKPRØVE -> Brukerrolle.Stikkprøve in brukerroller
+                    Egenskap.BESLUTTER -> brukerroller.harRolle(Brukerrolle.Beslutter)
+                    Egenskap.STIKKPRØVE -> brukerroller.harRolle(Brukerrolle.Stikkprøve)
                     else -> true
                 }
         }
@@ -429,7 +426,7 @@ class Oppgave private constructor(
 
         fun harTilgangTilEgenskap(
             egenskap: Egenskap,
-            brukerroller: Set<Brukerrolle>,
+            brukerroller: Brukerroller,
         ): Boolean =
             when (egenskap) {
                 // Ingen skal ha tilgang til strengt fortrolig adresse i Speil foreløpig
@@ -438,11 +435,11 @@ class Oppgave private constructor(
                 }
 
                 Egenskap.EGEN_ANSATT -> {
-                    Brukerrolle.EgenAnsatt in brukerroller
+                    brukerroller.harRolle(Brukerrolle.EgenAnsatt)
                 }
 
                 Egenskap.FORTROLIG_ADRESSE -> {
-                    Brukerrolle.Kode7 in brukerroller
+                    brukerroller.harRolle(Brukerrolle.Kode7)
                 }
 
                 else -> {

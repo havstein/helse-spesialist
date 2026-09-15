@@ -12,6 +12,7 @@ import no.nav.helse.spesialist.application.Either
 import no.nav.helse.spesialist.application.ForsikringsvurderingHenter
 import no.nav.helse.spesialist.db.DBDaos
 import no.nav.helse.spesialist.db.TransactionalSessionFactory
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import javax.sql.DataSource
 
 class TestMediator(
@@ -51,7 +52,7 @@ class TestMediator(
                     reservasjonDao = sessionContext.reservasjonDao,
                     meldingPubliserer = meldingPubliserer,
                     oppgaveRepository = sessionContext.oppgaveRepository,
-                    brukerrollehenter = { Either.Success(emptySet()) },
+                    brukerrollehenter = { Either.Success(Brukerroller()) },
                 )
             },
             subsumsjonsmelderProvider = { Subsumsjonsmelder("versjonAvKode", meldingPubliserer) },

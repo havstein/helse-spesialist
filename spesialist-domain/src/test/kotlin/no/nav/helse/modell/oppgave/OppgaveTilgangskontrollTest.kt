@@ -3,6 +3,7 @@ package no.nav.helse.modell.oppgave
 import no.nav.helse.spesialist.domain.oppgave.Egenskap
 import no.nav.helse.spesialist.domain.oppgave.Oppgave
 import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.params.ParameterizedTest
@@ -18,7 +19,7 @@ class OppgaveTilgangskontrollTest {
         assertFalse(
             Oppgave.harTilgangTilEgenskap(
                 egenskap = egenskap,
-                brukerroller = emptySet(),
+                brukerroller = Brukerroller(),
             ),
         )
     }
@@ -27,7 +28,7 @@ class OppgaveTilgangskontrollTest {
     @MethodSource("kombinasjonerSomGirTilgang")
     fun `saksbehandler har tilgang til oppgaveegenskap`(
         egenskap: Egenskap,
-        roller: Set<Brukerrolle>,
+        roller: Brukerroller,
     ) {
         assertTrue(
             Oppgave.harTilgangTilEgenskap(
@@ -41,7 +42,7 @@ class OppgaveTilgangskontrollTest {
     @MethodSource("kombinasjonerSomIkkeGirTilgang")
     fun `saksbehandler har ikke tilgang til oppgaveegenskap`(
         egenskap: Egenskap,
-        roller: Set<Brukerrolle>,
+        roller: Brukerroller,
     ) {
         assertFalse(
             Oppgave.harTilgangTilEgenskap(
@@ -57,11 +58,11 @@ class OppgaveTilgangskontrollTest {
             Stream.of(
                 Arguments.of(
                     Egenskap.FORTROLIG_ADRESSE,
-                    setOf(Brukerrolle.Kode7),
+                    Brukerroller(Brukerrolle.Kode7),
                 ),
                 Arguments.of(
                     Egenskap.EGEN_ANSATT,
-                    setOf(Brukerrolle.EgenAnsatt),
+                    Brukerroller(Brukerrolle.EgenAnsatt),
                 ),
             )
 
@@ -70,19 +71,19 @@ class OppgaveTilgangskontrollTest {
             Stream.of(
                 Arguments.of(
                     Egenskap.FORTROLIG_ADRESSE,
-                    emptySet<Brukerrolle>(),
+                    Brukerroller(),
                 ),
                 Arguments.of(
                     Egenskap.EGEN_ANSATT,
-                    emptySet<Brukerrolle>(),
+                    Brukerroller(),
                 ),
                 Arguments.of(
                     Egenskap.FORTROLIG_ADRESSE,
-                    (Brukerrolle.entries - Brukerrolle.Kode7).toSet(),
+                    Brukerroller((Brukerrolle.entries - Brukerrolle.Kode7).toSet()),
                 ),
                 Arguments.of(
                     Egenskap.EGEN_ANSATT,
-                    (Brukerrolle.entries - Brukerrolle.EgenAnsatt).toSet(),
+                    Brukerroller((Brukerrolle.entries - Brukerrolle.EgenAnsatt).toSet()),
                 ),
             )
     }

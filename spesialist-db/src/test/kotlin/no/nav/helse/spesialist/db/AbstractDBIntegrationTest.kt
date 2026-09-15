@@ -57,7 +57,7 @@ import no.nav.helse.spesialist.domain.testfixtures.testdata.lagFødselsdato
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagFødselsnummer
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagPerson
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagSaksbehandler
-import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import org.junit.jupiter.api.AfterEach
 import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 import tools.jackson.module.kotlin.jacksonMapperBuilder
@@ -483,7 +483,7 @@ abstract class AbstractDBIntegrationTest {
 
     protected fun Oppgave.tildelOgLagre(
         saksbehandler: Saksbehandler,
-        brukerroller: Set<Brukerrolle> = emptySet(),
+        brukerroller: Brukerroller = Brukerroller(),
     ): Oppgave {
         sessionContext.saksbehandlerRepository.lagre(saksbehandler)
         this.tildelTil(saksbehandler, brukerroller)

@@ -13,11 +13,12 @@ import no.nav.helse.spesialist.application.logg.loggInfo
 import no.nav.helse.spesialist.domain.Vedtaksperiode
 import no.nav.helse.spesialist.domain.VedtaksperiodeId
 import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import no.nav.helse.spesialist.domain.tilgangskontroll.Tilgang
 
 class PostAnmodOmForkastingBehandler : PostBehandler<Vedtaksperioder.VedtaksperiodeId.AnmodOmForkasting, ApiAnmodOmForkastingRequest, Unit, ApiPostAnmodOmForkastingErrorCode> {
     override val påkrevdTilgang = Tilgang.Skriv
-    override val påkrevdeBrukerroller = setOf(Brukerrolle.SelvstendigNæringsdrivendeBeta)
+    override val påkrevdeBrukerroller = Brukerroller(Brukerrolle.SelvstendigNæringsdrivendeBeta)
     override val tag = Tags.VEDTAKSPERIODER
 
     override fun behandle(

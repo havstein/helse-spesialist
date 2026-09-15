@@ -46,6 +46,7 @@ import no.nav.helse.spesialist.domain.Vedtaksperiode
 import no.nav.helse.spesialist.domain.VedtaksperiodeId
 import no.nav.helse.spesialist.domain.oppgave.Oppgave
 import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import java.time.LocalDateTime
 
 class PostVedtakBehandler(
@@ -259,9 +260,9 @@ class PostVedtakBehandler(
 
     private fun Totrinnsvurdering.godkjenn(
         beslutter: Saksbehandler,
-        brukerroller: Set<Brukerrolle>,
+        brukerroller: Brukerroller,
     ) {
-        if (Brukerrolle.Beslutter !in brukerroller && !environmentToggles.kanGodkjenneUtenBesluttertilgang) {
+        if (!brukerroller.harRolle(Brukerrolle.Beslutter) && !environmentToggles.kanGodkjenneUtenBesluttertilgang) {
             throw FattVedtakException(SAKSBEHANDLER_MANGLER_BESLUTTERTILGANG)
         }
         if (this.saksbehandler?.value == beslutter.id.value && !environmentToggles.kanBeslutteEgneSaker) {

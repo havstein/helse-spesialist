@@ -21,12 +21,12 @@ import no.nav.helse.spesialist.domain.Vedtaksperiode
 import no.nav.helse.spesialist.domain.VedtaksperiodeId
 import no.nav.helse.spesialist.domain.oppgave.Oppgave
 import no.nav.helse.spesialist.domain.oppgave.OppgaveId
-import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import no.nav.helse.spesialist.domain.tilgangskontroll.Tilgang
 
 class KallKontekst(
     val saksbehandler: Saksbehandler,
-    val brukerroller: Set<Brukerrolle>,
+    val brukerroller: Brukerroller,
     val tilganger: Set<Tilgang>,
     val transaksjon: SessionContext,
     val outbox: Outbox,

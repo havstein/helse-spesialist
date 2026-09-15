@@ -25,6 +25,7 @@ import no.nav.helse.spesialist.domain.testfixtures.lagSpleisBehandlingId
 import no.nav.helse.spesialist.domain.testfixtures.lagVedtaksperiodeId
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagFødselsnummer
 import no.nav.helse.spesialist.domain.testfixtures.testdata.lagSaksbehandler
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -89,7 +90,7 @@ internal class OppgaveServiceTest {
             reservasjonDao = reservasjonDao,
             meldingPubliserer = meldingPubliserer,
             oppgaveRepository = oppgaveRepository,
-            brukerrollehenter = { Either.Success(emptySet()) },
+            brukerrollehenter = { Either.Success(Brukerroller()) },
         )
 
     private fun lagSøknadsoppgave(

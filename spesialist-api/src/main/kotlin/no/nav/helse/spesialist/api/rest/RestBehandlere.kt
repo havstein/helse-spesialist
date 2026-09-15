@@ -3,7 +3,7 @@ package no.nav.helse.spesialist.api.rest
 import io.github.smiley4.ktoropenapi.config.RouteConfig
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import no.nav.helse.spesialist.domain.tilgangskontroll.Tilgang
 
 enum class Tags(
@@ -32,7 +32,7 @@ interface RestBehandler {
     fun openApi(config: RouteConfig) {}
 
     val påkrevdTilgang: Tilgang
-    val påkrevdeBrukerroller: Set<Brukerrolle> get() = emptySet()
+    val påkrevdeBrukerroller: Brukerroller get() = Brukerroller.INGEN
 
     fun operationIdBasertPåKlassenavn(): String =
         this::class

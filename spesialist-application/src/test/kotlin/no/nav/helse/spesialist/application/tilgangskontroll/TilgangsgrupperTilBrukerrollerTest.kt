@@ -1,8 +1,8 @@
 package no.nav.helse.spesialist.application.tilgangskontroll
 
 import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerrolle
+import no.nav.helse.spesialist.domain.tilgangskontroll.Brukerroller
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -22,7 +22,7 @@ class TilgangsgrupperTilBrukerrollerTest {
     fun `ingen grupper gir ingen roller`() {
         val roller = tilgangsgrupperTilBrukerroller.finnBrukerrollerFraTilgangsgrupper(emptyList())
 
-        assertTrue(roller.isEmpty())
+        assertEquals(Brukerroller(), roller)
     }
 
     @Test
@@ -30,8 +30,7 @@ class TilgangsgrupperTilBrukerrollerTest {
         val grupper = listOf(annenGruppeId1, næringsdrivendeGruppeId)
         val roller = tilgangsgrupperTilBrukerroller.finnBrukerrollerFraTilgangsgrupper(grupper)
 
-        assertEquals(1, roller.size)
-        assertTrue(roller.contains(Brukerrolle.SelvstendigNæringsdrivendeBeta))
+        assertEquals(Brukerroller(Brukerrolle.SelvstendigNæringsdrivendeBeta), roller)
     }
 
     @Test
@@ -39,8 +38,7 @@ class TilgangsgrupperTilBrukerrollerTest {
         val grupper = listOf(annenGruppeId1, porteføljestyringGruppeId)
         val roller = tilgangsgrupperTilBrukerroller.finnBrukerrollerFraTilgangsgrupper(grupper)
 
-        assertEquals(1, roller.size)
-        assertTrue(roller.contains(Brukerrolle.Porteføljestyring))
+        assertEquals(Brukerroller(Brukerrolle.Porteføljestyring), roller)
     }
 
     @Test
@@ -48,6 +46,6 @@ class TilgangsgrupperTilBrukerrollerTest {
         val grupper = listOf(annenGruppeId1, annenGruppeId2, UUID.randomUUID())
         val roller = tilgangsgrupperTilBrukerroller.finnBrukerrollerFraTilgangsgrupper(grupper)
 
-        assertTrue(roller.isEmpty())
+        assertEquals(Brukerroller(), roller)
     }
 }

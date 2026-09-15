@@ -17,6 +17,7 @@ class GetBrukerBehandler : GetBehandler<Bruker, ApiBruker, GetBrukerErrorCode> {
             ApiBruker(
                 brukerroller =
                     kallKontekst.brukerroller
+                        .tilSet()
                         .map {
                             when (it) {
                                 Brukerrolle.SelvstendigNæringsdrivendeBeta -> ApiBrukerrolle.SELVSTENDIG_NÆRINGSDRIVENDE_BETA
