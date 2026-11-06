@@ -10,7 +10,7 @@ data class Brukerroller(
 
     fun harRolle(rolle: Brukerrolle): Boolean = rolle in roller
 
-    fun harTilstrekkeligRolle(påkrevdeRoller: Brukerroller): Boolean = påkrevdeRoller.roller.isEmpty() || påkrevdeRoller.roller.any { it in roller }
+    fun manglerBrukerrolle(påkrevdeRoller: Brukerroller): Boolean = påkrevdeRoller.roller.isNotEmpty() && påkrevdeRoller.roller.none { it in roller }
 
     // For de få stedene som faktisk trenger å transformere hele mengden av roller, for eksempel mapping til
     // API-representasjon.

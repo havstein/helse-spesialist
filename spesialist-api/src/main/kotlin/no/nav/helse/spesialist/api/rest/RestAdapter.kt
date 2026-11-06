@@ -90,7 +90,7 @@ class RestAdapter(
                 return@withSaksbehandlerIdentMdc
             }
 
-            if (!principal.brukerroller.harTilstrekkeligRolle(påkrevdeBrukerroller)) {
+            if (principal.brukerroller.manglerBrukerrolle(påkrevdeBrukerroller)) {
                 call.respondWithProblem(genericProblemDetails(HttpStatusCode.Forbidden))
                 return@withSaksbehandlerIdentMdc
             }
